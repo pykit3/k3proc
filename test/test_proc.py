@@ -53,19 +53,19 @@ class TestProcError(unittest.TestCase):
 
         subproc = os.path.join(this_base, 'subproc.py')
 
-        returncode, out, err = proc.command('python2', subproc, '222')
+        returncode, out, err = proc.command('python', subproc, '222')
 
         self.assertEqual(222, returncode)
-        self.assertEqual('out-1\nout-2\n', out)
-        self.assertEqual('err-1\nerr-2\n', err)
+        self.assertEqual(b'out-1\nout-2\n', out)
+        self.assertEqual(b'err-1\nerr-2\n', err)
 
         try:
-            returncode, out, err = proc.command_ex('python2', subproc, '222')
+            returncode, out, err = proc.command_ex('python', subproc, '222')
         except proc.ProcError as e:
             self.assertEqual(222, e.returncode)
-            self.assertEqual('out-1\nout-2\n', e.out)
-            self.assertEqual('err-1\nerr-2\n', e.err)
-            self.assertEqual('python2', e.command)
+            self.assertEqual(b'out-1\nout-2\n', e.out)
+            self.assertEqual(b'err-1\nerr-2\n', e.err)
+            self.assertEqual('python', e.command)
             self.assertTrue(e.arguments[0].endswith('subproc.py'))
             self.assertEqual('222', e.arguments[1])
             self.assertEqual({}, e.options)
@@ -74,14 +74,14 @@ class TestProcError(unittest.TestCase):
 
         returncode, out, err = proc.command_ex('python2', subproc, '0')
         self.assertEqual(0, returncode)
-        self.assertEqual('out-1\nout-2\n', out)
-        self.assertEqual('err-1\nerr-2\n', err)
+        self.assertEqual(b'out-1\nout-2\n', out)
+        self.assertEqual(b'err-1\nerr-2\n', err)
 
         returncode, out, err = proc.command('python2', subproc, '0')
 
         self.assertEqual(0, returncode)
-        self.assertEqual('out-1\nout-2\n', out)
-        self.assertEqual('err-1\nerr-2\n', err)
+        self.assertEqual(b'out-1\nout-2\n', out)
+        self.assertEqual(b'err-1\nerr-2\n', err)
 
     def test_close_fds(self):
 
@@ -89,20 +89,22 @@ class TestProcError(unittest.TestCase):
 
         with open(read_fd) as f:
             fd = f.fileno()
+            os.set_inheritable(fd, True)
 
             returncode, out, err = proc.command(
-                'python2', read_fd, str(fd), close_fds=False)
+                'python', read_fd, str(fd), close_fds=False)
 
+            dd(returncode, out, err)
             self.assertEqual(0, returncode)
-            self.assertEqual('###\n', out)
-            self.assertEqual('', err)
+            self.assertEqual(b'###\n', out)
+            self.assertEqual(b'', err)
 
             returncode, out, err = proc.command(
-                'python2', read_fd, str(fd), close_fds=True)
+                'python', read_fd, str(fd), close_fds=True)
 
             self.assertEqual(1, returncode)
-            self.assertEqual('errno=9\n', out)
-            self.assertEqual('', err)
+            self.assertEqual(b'errno=9\n', out)
+            self.assertEqual(b'', err)
 
     def test_cwd(self):
 
@@ -123,11 +125,11 @@ class TestProcError(unittest.TestCase):
         dd('err:', err)
 
         self.assertEqual(0, returncode)
-        self.assertEqual('xyz\n', out)
+        self.assertEqual(b'xyz\n', out)
 
     def test_stdin(self):
 
-        returncode, out, err = proc.command('python2', 'read_fd.py', '0',
+        returncode, out, err = proc.command('python', 'read_fd.py', '0',
                                             stdin='abc',
                                             cwd=this_base)
         dd('returncode:', returncode)
@@ -135,7 +137,7 @@ class TestProcError(unittest.TestCase):
         dd('err:', err)
 
         self.assertEqual(0, returncode)
-        self.assertEqual('abc\n', out)
+        self.assertEqual(b'abc\n', out)
 
     def test_shell_script(self):
 
@@ -147,7 +149,7 @@ class TestProcError(unittest.TestCase):
         dd('err:', err)
 
         self.assertEqual(0, returncode)
-        self.assertEqual('__init__.py\n', out)
+        self.assertEqual(b'__init__.py\n', out)
 
     def test_start_process(self):
 

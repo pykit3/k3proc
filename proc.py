@@ -5,7 +5,8 @@ import errno
 import logging
 import os
 
-import subprocess32
+import subprocess
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,14 +40,18 @@ def command(cmd, *arguments, **options):
         env = dict(os.environ, **env)
     stdin = options.get('stdin', None)
 
-    subproc = subprocess32.Popen([cmd] + list(arguments),
+    arguments = [_bytes(x) for x in arguments]
+    stdin = _bytes(stdin)
+
+
+    subproc = subprocess.Popen([cmd] + list(arguments),
                                  close_fds=close_fds,
                                  shell=shell,
                                  cwd=cwd,
                                  env=env,
-                                 stdin=subprocess32.PIPE,
-                                 stdout=subprocess32.PIPE,
-                                 stderr=subprocess32.PIPE, )
+                                 stdin=subprocess.PIPE,
+                                 stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, )
 
     out, err = subproc.communicate(input=stdin)
 
@@ -119,3 +124,8 @@ def start_process(cmd, target, env, *args):
             pass
     else:
         _waitpid(pid)
+
+def _bytes(s):
+    if isinstance(s, str):
+        return bytes(s, 'utf-8')
+    return s

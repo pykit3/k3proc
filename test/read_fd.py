@@ -7,8 +7,9 @@ fd = int(sys.argv[1])
 
 try:
     a = os.read(fd, 3)
-    print a
+    os.write(1, a)
+    os.write(1, b"\n")
     sys.exit(0)
 except OSError as e:
-    print 'errno=' + str(e.errno)
+    print('errno=' + str(e.errno))
     sys.exit(1)
