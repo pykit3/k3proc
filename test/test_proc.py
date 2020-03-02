@@ -2,10 +2,10 @@ import os
 import time
 import unittest
 
-from pykit import proc
-from pykit import ututil
+import pykit3proc
+import pykit3ut
 
-dd = ututil.dd
+dd = pykit3ut.dd
 
 this_base = os.path.dirname(__file__)
 
@@ -38,7 +38,7 @@ class TestProcError(unittest.TestCase):
 
     def test_procerror(self):
         ex_args = (1, 'out', 'err', 'ls', ('a', 'b'), {"close_fds": True})
-        ex = proc.ProcError(*ex_args)
+        ex = pykit3proc.ProcError(*ex_args)
 
         self.assertEqual(ex_args, (ex.returncode,
                                    ex.out,
@@ -53,15 +53,15 @@ class TestProcError(unittest.TestCase):
 
         subproc = os.path.join(this_base, 'subproc.py')
 
-        returncode, out, err = proc.command('python', subproc, '222')
+        returncode, out, err = pykit3proc.command('python', subproc, '222')
 
         self.assertEqual(222, returncode)
         self.assertEqual(b'out-1\nout-2\n', out)
         self.assertEqual(b'err-1\nerr-2\n', err)
 
         try:
-            returncode, out, err = proc.command_ex('python', subproc, '222')
-        except proc.ProcError as e:
+            returncode, out, err = pykit3proc.command_ex('python', subproc, '222')
+        except pykit3proc.ProcError as e:
             self.assertEqual(222, e.returncode)
             self.assertEqual(b'out-1\nout-2\n', e.out)
             self.assertEqual(b'err-1\nerr-2\n', e.err)
@@ -70,14 +70,14 @@ class TestProcError(unittest.TestCase):
             self.assertEqual('222', e.arguments[1])
             self.assertEqual({}, e.options)
         else:
-            self.fail('expect proc.ProcError to be raised')
+            self.fail('expect pykit3proc.ProcError to be raised')
 
-        returncode, out, err = proc.command_ex('python2', subproc, '0')
+        returncode, out, err = pykit3proc.command_ex('python2', subproc, '0')
         self.assertEqual(0, returncode)
         self.assertEqual(b'out-1\nout-2\n', out)
         self.assertEqual(b'err-1\nerr-2\n', err)
 
-        returncode, out, err = proc.command('python2', subproc, '0')
+        returncode, out, err = pykit3proc.command('python2', subproc, '0')
 
         self.assertEqual(0, returncode)
         self.assertEqual(b'out-1\nout-2\n', out)
@@ -91,7 +91,7 @@ class TestProcError(unittest.TestCase):
             fd = f.fileno()
             os.set_inheritable(fd, True)
 
-            returncode, out, err = proc.command(
+            returncode, out, err = pykit3proc.command(
                 'python', read_fd, str(fd), close_fds=False)
 
             dd(returncode, out, err)
@@ -99,7 +99,7 @@ class TestProcError(unittest.TestCase):
             self.assertEqual(b'###\n', out)
             self.assertEqual(b'', err)
 
-            returncode, out, err = proc.command(
+            returncode, out, err = pykit3proc.command(
                 'python', read_fd, str(fd), close_fds=True)
 
             self.assertEqual(1, returncode)
@@ -108,16 +108,16 @@ class TestProcError(unittest.TestCase):
 
     def test_cwd(self):
 
-        returncode, out, err = proc.command(
+        returncode, out, err = pykit3proc.command(
             'python2', 'subproc.py', '111', cwd=this_base)
         self.assertEqual(111, returncode)
 
-        returncode, out, err = proc.command('python2', 'subproc.py', '111')
+        returncode, out, err = pykit3proc.command('python2', 'subproc.py', '111')
         # can not find subproc.py
         self.assertEqual(2, returncode)
 
     def test_env(self):
-        returncode, out, err = proc.command('python2', 'print_env.py', 'abc',
+        returncode, out, err = pykit3proc.command('python2', 'print_env.py', 'abc',
                                             env={"abc": "xyz"},
                                             cwd=this_base)
         dd('returncode:', returncode)
@@ -129,7 +129,7 @@ class TestProcError(unittest.TestCase):
 
     def test_stdin(self):
 
-        returncode, out, err = proc.command('python', 'read_fd.py', '0',
+        returncode, out, err = pykit3proc.command('python', 'read_fd.py', '0',
                                             stdin='abc',
                                             cwd=this_base)
         dd('returncode:', returncode)
@@ -141,7 +141,7 @@ class TestProcError(unittest.TestCase):
 
     def test_shell_script(self):
 
-        returncode, out, err = proc.shell_script(
+        returncode, out, err = pykit3proc.shell_script(
             'ls ' + this_base + ' | grep init | grep -v pyc')
 
         dd('returncode:', returncode)
@@ -161,6 +161,6 @@ class TestProcError(unittest.TestCase):
         )
 
         for cmd, target, args, expected in cases:
-            proc.start_process(cmd, target, os.environ, *args)
+            pykit3proc.start_process(cmd, target, os.environ, *args)
             time.sleep(0.1)
             self.assertEqual(expected, self._read_file(self.foo_fn))
