@@ -1,0 +1,6 @@
+_extends: gh-config
+
+repository:
+  description: easy to use `Popen`
+  homepage: https://blog.openacid.com
+  topics: subprocess, popen
