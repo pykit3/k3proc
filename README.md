@@ -18,6 +18,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+[![Build Status](https://travis-ci.com/drmingdrmer/pykit3proc.svg?branch=master)](https://travis-ci.com/drmingdrmer/pykit3proc)
 
 #   Name
 
