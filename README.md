@@ -7,6 +7,7 @@
 - [Description](#description)
 - [Synopsis](#synopsis)
 - [Exceptions](#exceptions)
+  - [proc.CalledProcessError](#proccalledprocesserror)
   - [proc.ProcError](#procprocerror)
 - [Methods](#methods)
   - [proc.command](#proccommand)
@@ -75,23 +76,28 @@ except Exception as e:
 
 #   Exceptions
 
-##  proc.ProcError
+##  proc.CalledProcessError
 
 **syntax**:
-`proc.ProcError(returncode, out, err, cmd, arguments, options)`
+`proc.CalledProcessError(returncode, out, err, cmd, arguments, options)`
 
 It is raised if a sub process return code is not `0`.
-Besides `ProcError.args`, extended from super class `Exception`, it has 6
+Besides `CalledProcessError.args`, extended from super class `Exception`, it has 6
 other attributes.
 
 **attributes**:
+<!-- TODO env -->
 
--   `ProcError.returncode`:   process exit code.
--   `ProcError.out`:          stdout in one string.
--   `ProcError.err`:          stderr in one string.
--   `ProcError.cmd`:          the command a process `exec()`.
--   `ProcError.arguments`:    tuple of command arguments.
--   `ProcError.options`:      other options passed to this process. Such as `close_fds`, `cwd` etc.
+-   `CalledProcessError.returncode`:   process exit code.
+-   `CalledProcessError.out`:          stdout in one string.
+-   `CalledProcessError.err`:          stderr in one string.
+-   `CalledProcessError.cmd`:          the command a process `exec()`.
+-   `CalledProcessError.arguments`:    tuple of command arguments.
+-   `CalledProcessError.options`:      other options passed to this process. Such as `close_fds`, `cwd` etc.
+
+##  proc.ProcError
+
+It is an alias to `proc.CalledProcessError`.
 
 #   Methods
 
@@ -138,13 +144,13 @@ a 3 element tuple that contains:
 `proc.command_ex(cmd, *arguments, **options)`
 
 It is the same as `proc.command` except that if sub process exit code is not
-0, it raises exception `proc.ProcError`.
+0, it raises exception `proc.CalledProcessError`.
 
-See `proc.ProcError`.
+See `proc.CalledProcessError`.
 
 **return**:
 a 3 element tuple of `returncode`, `out` and `err`, or raise exception
-`proc.ProcError`.
+`proc.CalledProcessError`.
 
 ##  proc.shell_script
 

@@ -4,6 +4,7 @@
 import errno
 import logging
 import os
+import sys
 
 import subprocess
 
@@ -11,16 +12,22 @@ import subprocess
 logger = logging.getLogger(__name__)
 
 
-class ProcError(Exception):
+class CalledProcessError(subprocess.CalledProcessError):
 
     def __init__(self, returncode, out, err, cmd, arguments, options):
 
-        super(ProcError, self).__init__(returncode,
-                                        out,
-                                        err,
-                                        cmd,
-                                        arguments,
-                                        options)
+        if sys.version_info.major == 3 and sys.version_info.minor >= 5:
+            super(CalledProcessError, self).__init__(returncode,
+                                                     str([cmd] + list(arguments)),
+                                                     output=out,
+                                                     stderr=err, 
+                                            )
+        else:
+            # python 3.4 has no stderr arg
+            super(CalledProcessError, self).__init__(returncode,
+                                                     str([cmd] + list(arguments)),
+                                                     output=out,
+                                            )
 
         self.returncode = returncode
         self.out = out
@@ -29,6 +36,7 @@ class ProcError(Exception):
         self.arguments = arguments
         self.options = options
 
+ProcError = CalledProcessError
 
 def command(cmd, *arguments, **options):
 
@@ -63,7 +71,7 @@ def command(cmd, *arguments, **options):
 def command_ex(cmd, *arguments, **options):
     returncode, out, err = command(cmd, *arguments, **options)
     if returncode != 0:
-        raise ProcError(returncode, out, err, cmd, arguments, options)
+        raise CalledProcessError(returncode, out, err, cmd, arguments, options)
 
     return returncode, out, err
 

@@ -39,7 +39,7 @@ class TestProcError(unittest.TestCase):
 
     def test_procerror(self):
         ex_args = (1, 'out', 'err', 'ls', ('a', 'b'), {"close_fds": True})
-        ex = pykit3proc.ProcError(*ex_args)
+        ex = pykit3proc.CalledProcessError(*ex_args)
 
         self.assertEqual(ex_args, (ex.returncode,
                                    ex.out,
@@ -62,7 +62,7 @@ class TestProcError(unittest.TestCase):
 
         try:
             returncode, out, err = pykit3proc.command_ex('python', subproc, '222')
-        except pykit3proc.ProcError as e:
+        except pykit3proc.CalledProcessError as e:
             self.assertEqual(222, e.returncode)
             self.assertEqual(b'out-1\nout-2\n', e.out)
             self.assertEqual(b'err-1\nerr-2\n', e.err)
@@ -71,7 +71,7 @@ class TestProcError(unittest.TestCase):
             self.assertEqual('222', e.arguments[1])
             self.assertEqual({}, e.options)
         else:
-            self.fail('expect pykit3proc.ProcError to be raised')
+            self.fail('expect pykit3proc.CalledProcessError to be raised')
 
         returncode, out, err = pykit3proc.command_ex('python', subproc, '0')
         self.assertEqual(0, returncode)

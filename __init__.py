@@ -1,4 +1,5 @@
 from .proc import (
+    CalledProcessError,
     ProcError,
     command,
     command_ex,
@@ -7,6 +8,7 @@ from .proc import (
 )
 
 __all__ = [
+    'CalledProcessError',
     'ProcError',
     'command',
     'command_ex',
