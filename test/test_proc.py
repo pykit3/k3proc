@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import unittest
 
@@ -113,8 +114,12 @@ class TestProcError(unittest.TestCase):
         self.assertEqual(111, returncode)
 
         returncode, out, err = pykit3proc.command('python', 'subproc.py', '111')
-        # can not find subproc.py
-        self.assertEqual(2, returncode)
+        if 'PyPy' in sys.version:
+            # PyPy does not return code correctly. it is 1
+            self.assertNotEqual(0, returncode)
+        else:
+            # 2 for can not find subproc.py
+            self.assertEqual(2, returncode)
 
     def test_env(self):
         returncode, out, err = pykit3proc.command('python', 'print_env.py', 'abc',
