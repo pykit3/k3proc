@@ -16,6 +16,7 @@ install:
     - pip install -r requirements.txt
 script:
     - sudo env "PATH=$PATH" python --version          # environment check
+    - sudo env "PATH=$PATH" python -c 'import sys; print(sys.version)'           # environment check
 
     # Some tests do not pass on travis-ci.
     # E.g.: redis, mysql, zookeeper, etcd needs a docker to test.
