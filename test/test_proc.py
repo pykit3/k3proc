@@ -49,6 +49,25 @@ class TestProcError(unittest.TestCase):
 
         self.assertEqual(ex_args, ex.args)
 
+    def test_error_str(self):
+
+        try:
+            pykit3proc.command(
+                'python', '-c', 'import sys; sys.exit(1)',
+                check=True,
+                env={"foo": "bar"},
+                cwd="/tmp",
+                input="123")
+        except pykit3proc.CalledProcessError as e:
+            s = '\n'.join([
+                "CalledProcessError",
+                'python -c import sys; sys.exit(1)',
+                "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': '123'}",
+                "exit code: 1"
+            ])
+            self.assertEqual(s, str(e))
+            self.assertEqual(s, repr(e))
+
     def test_code_out_err(self):
 
         subproc = os.path.join(this_base, 'subproc.py')

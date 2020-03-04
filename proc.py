@@ -44,6 +44,22 @@ class CalledProcessError(subprocess.CalledProcessError):
         self.cmd = cmd
         self.options = options
 
+    def __str__(self):
+        s = [self.__class__.__name__,
+             " ".join(self.cmd),
+             "options: " + str(self.options),
+             "exit code: " + str(self.returncode)]
+
+        for l in self.out.splitlines():
+            s.append(l)
+
+        for l in self.err.splitlines():
+            s.append(l)
+        return "\n".join(s)
+
+    def __repr__(self):
+        return self.__str__()
+
 
 ProcError = CalledProcessError
 TimeoutExpired = subprocess.TimeoutExpired
@@ -96,9 +112,10 @@ def command(cmd, *arguments,
     if inherit_env is None:
         inherit_env = True
 
+    merged_env = env
     if inherit_env:
         if env is not None:
-            env = dict(os.environ, **env)
+            merged_env = dict(os.environ, **env)
 
     if isinstance(cmd, (list, tuple)):
         cmds = cmd
@@ -140,7 +157,7 @@ def command(cmd, *arguments,
                                creationflags=creationflags,
                                cwd=cwd,
                                encoding=encoding,
-                               env=env,
+                               env=merged_env,
                                errors=errors,
                                executable=executable,
                                pass_fds=pass_fds,
