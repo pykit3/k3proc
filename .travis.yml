@@ -6,8 +6,6 @@ cache: pip
 sudo: required
 
 python:
-  - "3.4"
-  - "3.5"
   - "3.6"
   - "3.7"
   - "3.8"
@@ -17,6 +15,7 @@ install:
 script:
     - sudo env "PATH=$PATH" python --version          # environment check
     - sudo env "PATH=$PATH" python -c 'import sys; print(sys.version)'           # environment check
+    - sudo env "PATH=$PATH" python -c 'import sys; print(sys.version_info)'           # environment check
 
     # Some tests do not pass on travis-ci.
     # E.g.: redis, mysql, zookeeper, etcd needs a docker to test.
