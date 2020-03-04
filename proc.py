@@ -2,8 +2,11 @@
 # coding: utf-8
 
 import errno
+import io
 import logging
 import os
+import pty
+import select
 import subprocess
 import sys
 
@@ -71,13 +74,27 @@ def command(cmd, *arguments,
 
             input=None,
             check=False,
-            inherit_env=True,
+            inherit_env=None,
             timeout=None,
             capture=None,
+            tty=None
             ):
 
     if encoding is None:
         encoding = defenc
+
+    if capture is None:
+        capture = True
+
+    if tty is None:
+        tty = False
+
+    # tty mode only support capture mode
+    if tty:
+        capture = True
+
+    if inherit_env is None:
+        inherit_env = True
 
     if inherit_env:
         if env is not None:
@@ -88,17 +105,33 @@ def command(cmd, *arguments,
     else:
         cmds = [cmd] + list(arguments)
 
-    if capture is None:
-        capture = True
-
-    if capture:
-        io = {
-            'stdin': subprocess.PIPE,
-            'stdout': subprocess.PIPE,
-            'stderr': subprocess.PIPE,
+    if tty:
+        out_master_fd, out_slave_fd = pty.openpty()
+        err_master_fd, err_slave_fd = pty.openpty()
+        ioopt = {
+            # TODO 'stdin':
+            'stdout': out_slave_fd,
+            'stderr': err_slave_fd,
         }
     else:
-        io = {}
+        if capture:
+            ioopt = {
+                'stdin': subprocess.PIPE,
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.PIPE,
+            }
+
+        else:
+            ioopt = {}
+
+    textopt = {}
+    # since 3.7 there is a text arg
+    if sys.version_info.minor >= 7:
+        textopt["text"] = text
+
+    text_mode = encoding or errors or universal_newlines
+    if text is False:
+        text_mode = False
 
     subproc = subprocess.Popen(cmds,
 
@@ -116,19 +149,43 @@ def command(cmd, *arguments,
                                shell=shell,
                                start_new_session=start_new_session,
                                startupinfo=startupinfo,
-                               text=text,
+                               **textopt,
                                universal_newlines=universal_newlines,
-                               **io
+                               **ioopt
                                )
 
-    try:
-        out, err = subproc.communicate(input=input, timeout=timeout)
-    except TimeoutExpired:
-        subproc.kill()
-        subproc.wait()
-        raise
+    if tty:
+        # TODO support timeout
+        out = []
+        err = []
 
-    subproc.wait()
+        while subproc.poll() is None:
+            r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
+            if out_master_fd in r:
+                o = os.read(out_master_fd, 10240)
+                out.append(o)
+            if err_master_fd in r:
+                o = os.read(err_master_fd, 10240)
+                err.append(o)
+
+        out = b''.join(out)
+        err = b''.join(err)
+
+        if text_mode:
+            out = io.TextIOWrapper(io.BytesIO(out),
+                                   encoding=encoding, errors=errors).read()
+            err = io.TextIOWrapper(io.BytesIO(err),
+                                   encoding=encoding, errors=errors).read()
+
+    else:
+        try:
+            out, err = subproc.communicate(input=input, timeout=timeout)
+        except TimeoutExpired:
+            subproc.kill()
+            subproc.wait()
+            raise
+
+        subproc.wait()
 
     if check and subproc.returncode != 0:
         opts = {}

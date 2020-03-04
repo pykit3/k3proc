@@ -231,6 +231,39 @@ capture={}
         self.assertEqual(0, returncode)
         self.assertEqual("", out)
 
+    def test_tty(self):
+
+        returncode, out, err = pykit3proc.command(
+            'python', '-c', 'import sys; print(sys.stdout.isatty())',
+            tty=True,
+        )
+
+        dd('returncode:', returncode)
+        dd('out:', out)
+        dd('err:', err)
+
+        self.assertEqual(0, returncode)
+
+        self.assertEqual('True\n', out)
+        self.assertEqual("", err)
+
+        # without pseudo tty, no color outupt:
+
+        _, out, _ = pykit3proc.command(
+            'python', '-c', 'import sys; print(sys.stdout.isatty())',
+            tty=False,
+        )
+
+        self.assertEqual('False\n', out)
+
+        # by default no tty:
+
+        _, out, _ = pykit3proc.command(
+            'python', '-c', 'import sys; print(sys.stdout.isatty())',
+        )
+
+        self.assertEqual('False\n', out)
+
     def test_shell_script(self):
 
         returncode, out, err = pykit3proc.shell_script(

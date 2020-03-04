@@ -129,18 +129,22 @@ It blocks until sub process exit.
 
     It also accept the following additional options:
 
-    -   `check`: if `True`, raise `CalledProcessError` if returncode is not 0.
+    -   `check=False`: if `True`, raise `CalledProcessError` if returncode is not 0.
         By default it is `False`.
 
     -   `capture=True`: whether to capture stdin, stdout and stderr.
         Otherwise inherit these fd from current process.
 
-    -   `inherit_env`: whether to inherit evironment vars from current process.
+    -   `inherit_env=True`: whether to inherit evironment vars from current process.
 
-    -   `input`: input to send to stdin, if it is not None.
+    -   `input=None`: input to send to stdin, if it is not None.
 
-    -   `timeout`: seconds to wait for sub process to exit.
+    -   `timeout=None`: seconds to wait for sub process to exit.
         By default it is None, for waiting for ever.
+
+    -   `tty=False`: whether to create a speudo tty to run sub process so that
+        the sub process believes it is in a tty(just like controlled by a
+        human).
 
 
 **return**:
