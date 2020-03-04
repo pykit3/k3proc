@@ -81,6 +81,8 @@ except Exception as e:
 **syntax**:
 `proc.CalledProcessError(returncode, out, err, cmd, arguments, options)`
 
+It is sub class of `subprocess.CalledProcessError`.
+
 It is raised if a sub process return code is not `0`.
 Besides `CalledProcessError.args`, extended from super class `Exception`, it has 6
 other attributes.
@@ -118,18 +120,28 @@ It blocks until sub process exit.
     is tuple or list of arguments passed to `cmd`.
 
 -   `options`:
-    is a dictionary or additional options:
+    is a dictionary of additional options, which are same as `subprocess.Popen`.
+    But with some different default value for easy use:
 
-    -   `close_fds`: specifies whether to close all open file descriptor when
-        `fork()`. By default it is `True`.
+    -   `encoding`: by default is the system default encoding.
 
-    -   `cwd`:  specifies working dir of the sub process. By default it is
-        `None`, which means does not change current working dir.
+    -   `env`: by default inherit from parent process.
 
-    -   `env`:  is a dictionary to pass environment variables to sub process.
+    It also accept the following additional options:
 
-    -   `stdin`: is a string used as stdin for sub process. By default it is
-        `None`.
+    -   `check`: if `True`, raise `CalledProcessError` if returncode is not 0.
+        By default it is `False`.
+
+    -   `capture=True`: whether to capture stdin, stdout and stderr.
+        Otherwise inherit these fd from current process.
+
+    -   `inherit_env`: whether to inherit evironment vars from current process.
+
+    -   `input`: input to send to stdin, if it is not None.
+
+    -   `timeout`: seconds to wait for sub process to exit.
+        By default it is None, for waiting for ever.
+
 
 **return**:
 a 3 element tuple that contains:
