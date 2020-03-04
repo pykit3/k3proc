@@ -11,5 +11,5 @@ try:
     os.write(1, b"\n")
     sys.exit(0)
 except OSError as e:
-    print('errno=' + str(e.errno))
+    print(('errno=' + str(e.errno)))
     sys.exit(1)

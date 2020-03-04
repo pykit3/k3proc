@@ -3,4 +3,4 @@ import sys
 
 key = sys.argv[1]
 
-print os.environ[key]
+print(os.environ[key])

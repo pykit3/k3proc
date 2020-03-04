@@ -72,12 +72,12 @@ class TestProcError(unittest.TestCase):
         else:
             self.fail('expect pykit3proc.ProcError to be raised')
 
-        returncode, out, err = pykit3proc.command_ex('python2', subproc, '0')
+        returncode, out, err = pykit3proc.command_ex('python', subproc, '0')
         self.assertEqual(0, returncode)
         self.assertEqual(b'out-1\nout-2\n', out)
         self.assertEqual(b'err-1\nerr-2\n', err)
 
-        returncode, out, err = pykit3proc.command('python2', subproc, '0')
+        returncode, out, err = pykit3proc.command('python', subproc, '0')
 
         self.assertEqual(0, returncode)
         self.assertEqual(b'out-1\nout-2\n', out)
@@ -109,15 +109,15 @@ class TestProcError(unittest.TestCase):
     def test_cwd(self):
 
         returncode, out, err = pykit3proc.command(
-            'python2', 'subproc.py', '111', cwd=this_base)
+            'python', 'subproc.py', '111', cwd=this_base)
         self.assertEqual(111, returncode)
 
-        returncode, out, err = pykit3proc.command('python2', 'subproc.py', '111')
+        returncode, out, err = pykit3proc.command('python', 'subproc.py', '111')
         # can not find subproc.py
         self.assertEqual(2, returncode)
 
     def test_env(self):
-        returncode, out, err = pykit3proc.command('python2', 'print_env.py', 'abc',
+        returncode, out, err = pykit3proc.command('python', 'print_env.py', 'abc',
                                             env={"abc": "xyz"},
                                             cwd=this_base)
         dd('returncode:', returncode)
@@ -154,8 +154,8 @@ class TestProcError(unittest.TestCase):
     def test_start_process(self):
 
         cases = (
-            ('python2', this_base + '/write.py', ['foo'], 'foo'),
-            ('python2', this_base + '/write.py', ['foo', 'bar'], 'foobar'),
+            ('python', this_base + '/write.py', ['foo'], 'foo'),
+            ('python', this_base + '/write.py', ['foo', 'bar'], 'foobar'),
             ('sh', this_base + '/write.sh', ['123'], '123'),
             ('sh', this_base + '/write.sh', ['123', '456'], '123456'),
         )
