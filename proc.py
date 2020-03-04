@@ -261,9 +261,3 @@ def start_process(cmd, target, env, *args):
             pass
     else:
         _waitpid(pid)
-
-
-def _bytes(s):
-    if isinstance(s, str):
-        return bytes(s, 'utf-8')
-    return s
