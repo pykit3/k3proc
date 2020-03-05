@@ -52,6 +52,20 @@ class TestProcError(unittest.TestCase):
 
         self.assertEqual(inp, ex.args)
 
+    def test_error_str_with_capture_false(self):
+        try:
+            pykit3proc.command(
+                'python', '-c', 'import sys; sys.exit(1)',
+                capture=False,
+                check=True,
+            )
+        except pykit3proc.CalledProcessError as e:
+            self.assertEqual('', e.stdout)
+            self.assertEqual([], e.out)
+            self.assertEqual('', e.stderr)
+            self.assertEqual([], e.err)
+
+
     def test_error_str(self):
 
         try:

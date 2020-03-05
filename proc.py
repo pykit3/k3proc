@@ -207,6 +207,11 @@ def command(cmd, *arguments,
 
         subproc.wait()
 
+        if out is None:
+            out = ''
+        if err is None:
+            err = ''
+
     if check and subproc.returncode != 0:
         opts = {}
         if cwd is not None:
