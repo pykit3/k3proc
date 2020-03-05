@@ -38,16 +38,19 @@ class TestProcError(unittest.TestCase):
         self._clean()
 
     def test_procerror(self):
-        ex_args = (1, 'out', 'err', ['ls', 'a', 'b'], {"close_fds": True})
-        ex = pykit3proc.CalledProcessError(*ex_args)
+        inp = (1, 'out', 'err', ['ls', 'a', 'b'], {"close_fds": True})
+        ex_args = (1, 'out', 'err', ['out'], ['err'],  ['ls', 'a', 'b'], {"close_fds": True})
+        ex = pykit3proc.CalledProcessError(*inp)
 
         self.assertEqual(ex_args, (ex.returncode,
+                                   ex.stdout,
+                                   ex.stderr,
                                    ex.out,
                                    ex.err,
                                    ex.cmd,
                                    ex.options))
 
-        self.assertEqual(ex_args, ex.args)
+        self.assertEqual(inp, ex.args)
 
     def test_error_str(self):
 
@@ -82,8 +85,10 @@ class TestProcError(unittest.TestCase):
             returncode, out, err = pykit3proc.command_ex('python', subproc, '222')
         except pykit3proc.CalledProcessError as e:
             self.assertEqual(222, e.returncode)
-            self.assertEqual('out-1\nout-2\n', e.out)
-            self.assertEqual('err-1\nerr-2\n', e.err)
+            self.assertEqual('out-1\nout-2\n', e.stdout)
+            self.assertEqual('out-1\nout-2\n'.splitlines(), e.out)
+            self.assertEqual('err-1\nerr-2\n', e.stderr)
+            self.assertEqual('err-1\nerr-2\n'.splitlines(), e.err)
             self.assertEqual('python', e.cmd[0])
             self.assertTrue(e.cmd[1].endswith('subproc.py'))
             self.assertEqual('222', e.cmd[2])

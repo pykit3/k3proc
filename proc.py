@@ -39,10 +39,13 @@ class CalledProcessError(subprocess.CalledProcessError):
                                                      )
 
         self.returncode = returncode
-        self.out = out
-        self.err = err
+        self.stdout = out
+        self.stderr = err
         self.cmd = cmd
         self.options = options
+
+        self.out = out.splitlines()
+        self.err = err.splitlines()
 
     def __str__(self):
         s = [self.__class__.__name__,
@@ -50,10 +53,10 @@ class CalledProcessError(subprocess.CalledProcessError):
              "options: " + str(self.options),
              "exit code: " + str(self.returncode)]
 
-        for l in self.out.splitlines():
+        for l in self.out:
             s.append(l)
 
-        for l in self.err.splitlines():
+        for l in self.err:
             s.append(l)
         return "\n".join(s)
 
