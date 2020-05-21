@@ -3,10 +3,10 @@ import sys
 import time
 import unittest
 
-import pykit3proc
-import pykit3ut
+import pk3proc
+import pk3ut
 
-dd = pykit3ut.dd
+dd = pk3ut.dd
 
 this_base = os.path.dirname(__file__)
 
@@ -40,7 +40,7 @@ class TestProcError(unittest.TestCase):
     def test_procerror(self):
         inp = (1, 'out', 'err', ['ls', 'a', 'b'], {"close_fds": True})
         ex_args = (1, 'out', 'err', ['out'], ['err'],  ['ls', 'a', 'b'], {"close_fds": True})
-        ex = pykit3proc.CalledProcessError(*inp)
+        ex = pk3proc.CalledProcessError(*inp)
 
         self.assertEqual(ex_args, (ex.returncode,
                                    ex.stdout,
@@ -54,12 +54,12 @@ class TestProcError(unittest.TestCase):
 
     def test_error_str_with_capture_false(self):
         try:
-            pykit3proc.command(
+            pk3proc.command(
                 'python', '-c', 'import sys; sys.exit(1)',
                 capture=False,
                 check=True,
             )
-        except pykit3proc.CalledProcessError as e:
+        except pk3proc.CalledProcessError as e:
             self.assertEqual('', e.stdout)
             self.assertEqual([], e.out)
             self.assertEqual('', e.stderr)
@@ -69,13 +69,13 @@ class TestProcError(unittest.TestCase):
     def test_error_str(self):
 
         try:
-            pykit3proc.command(
+            pk3proc.command(
                 'python', '-c', 'import sys; sys.exit(1)',
                 check=True,
                 env={"foo": "bar"},
                 cwd="/tmp",
                 input="123")
-        except pykit3proc.CalledProcessError as e:
+        except pk3proc.CalledProcessError as e:
             s = '\n'.join([
                 "CalledProcessError",
                 'python -c import sys; sys.exit(1)',
@@ -89,15 +89,15 @@ class TestProcError(unittest.TestCase):
 
         subproc = os.path.join(this_base, 'subproc.py')
 
-        returncode, out, err = pykit3proc.command('python', subproc, '222')
+        returncode, out, err = pk3proc.command('python', subproc, '222')
 
         self.assertEqual(222, returncode)
         self.assertEqual('out-1\nout-2\n', out)
         self.assertEqual('err-1\nerr-2\n', err)
 
         try:
-            returncode, out, err = pykit3proc.command_ex('python', subproc, '222')
-        except pykit3proc.CalledProcessError as e:
+            returncode, out, err = pk3proc.command_ex('python', subproc, '222')
+        except pk3proc.CalledProcessError as e:
             self.assertEqual(222, e.returncode)
             self.assertEqual('out-1\nout-2\n', e.stdout)
             self.assertEqual('out-1\nout-2\n'.splitlines(), e.out)
@@ -108,14 +108,14 @@ class TestProcError(unittest.TestCase):
             self.assertEqual('222', e.cmd[2])
             self.assertEqual({}, e.options)
         else:
-            self.fail('expect pykit3proc.CalledProcessError to be raised')
+            self.fail('expect pk3proc.CalledProcessError to be raised')
 
-        returncode, out, err = pykit3proc.command_ex('python', subproc, '0')
+        returncode, out, err = pk3proc.command_ex('python', subproc, '0')
         self.assertEqual(0, returncode)
         self.assertEqual('out-1\nout-2\n', out)
         self.assertEqual('err-1\nerr-2\n', err)
 
-        returncode, out, err = pykit3proc.command('python', subproc, '0')
+        returncode, out, err = pk3proc.command('python', subproc, '0')
 
         self.assertEqual(0, returncode)
         self.assertEqual('out-1\nout-2\n', out)
@@ -129,7 +129,7 @@ class TestProcError(unittest.TestCase):
             fd = f.fileno()
             os.set_inheritable(fd, True)
 
-            returncode, out, err = pykit3proc.command(
+            returncode, out, err = pk3proc.command(
                 'python', read_fd, str(fd), close_fds=False)
 
             dd(returncode, out, err)
@@ -137,7 +137,7 @@ class TestProcError(unittest.TestCase):
             self.assertEqual('###\n', out)
             self.assertEqual('', err)
 
-            returncode, out, err = pykit3proc.command(
+            returncode, out, err = pk3proc.command(
                 'python', read_fd, str(fd), close_fds=True)
 
             self.assertEqual(1, returncode)
@@ -146,11 +146,11 @@ class TestProcError(unittest.TestCase):
 
     def test_cwd(self):
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', 'subproc.py', '111', cwd=this_base)
         self.assertEqual(111, returncode)
 
-        returncode, out, err = pykit3proc.command('python', 'subproc.py', '111')
+        returncode, out, err = pk3proc.command('python', 'subproc.py', '111')
         if 'PyPy' in sys.version:
             # PyPy does not return code correctly. it is 1
             self.assertNotEqual(0, returncode)
@@ -159,7 +159,7 @@ class TestProcError(unittest.TestCase):
             self.assertEqual(2, returncode)
 
     def test_env(self):
-        returncode, out, err = pykit3proc.command('python', 'print_env.py', 'abc',
+        returncode, out, err = pk3proc.command('python', 'print_env.py', 'abc',
                                                   env={"abc": "xyz"},
                                                   cwd=this_base)
         dd('returncode:', returncode)
@@ -171,7 +171,7 @@ class TestProcError(unittest.TestCase):
 
     def test_inherit_env(self):
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', '-c', 'import os; print(os.environ.get("PATH"))',
             env={"abc": "xyz"},
             inherit_env=False,
@@ -185,7 +185,7 @@ class TestProcError(unittest.TestCase):
 
     def test_input(self):
 
-        returncode, out, err = pykit3proc.command('python', 'read_fd.py', '0',
+        returncode, out, err = pk3proc.command('python', 'read_fd.py', '0',
                                                   input='abc',
                                                   cwd=this_base)
         dd('returncode:', returncode)
@@ -197,9 +197,9 @@ class TestProcError(unittest.TestCase):
 
     def test_timeout(self):
 
-        with pykit3ut.Timer() as t:
-            self.assertRaises(pykit3proc.TimeoutExpired,
-                              pykit3proc.command, 'python', '-c',
+        with pk3ut.Timer() as t:
+            self.assertRaises(pk3proc.TimeoutExpired,
+                              pk3proc.command, 'python', '-c',
                               'import time; time.sleep(1)',
                               timeout=0.1
                               )
@@ -207,8 +207,8 @@ class TestProcError(unittest.TestCase):
 
     def test_check(self):
 
-        self.assertRaises(pykit3proc.CalledProcessError,
-                          pykit3proc.command,
+        self.assertRaises(pk3proc.CalledProcessError,
+                          pk3proc.command,
                           'python', '-c',
                           'import sys; sys.exit(5)',
                           check=True,
@@ -219,14 +219,14 @@ class TestProcError(unittest.TestCase):
         # no capture
 
         read_stdin_in_subproc = '''
-import pykit3proc;
-pykit3proc.command(
+import pk3proc;
+pk3proc.command(
 'python', '-c', 'import sys; print(sys.stdin.read())',
 capture={}
 )
         '''
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', '-c',
             read_stdin_in_subproc.format('False'),
             input="123",
@@ -241,7 +241,7 @@ capture={}
 
         # capture
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', '-c',
             read_stdin_in_subproc.format('True'),
             input="123",
@@ -256,7 +256,7 @@ capture={}
 
         # default capture
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', '-c',
             read_stdin_in_subproc.format('None'),
             input="123",
@@ -271,7 +271,7 @@ capture={}
 
     def test_tty(self):
 
-        returncode, out, err = pykit3proc.command(
+        returncode, out, err = pk3proc.command(
             'python', '-c', 'import sys; print(sys.stdout.isatty())',
             tty=True,
         )
@@ -287,7 +287,7 @@ capture={}
 
         # without pseudo tty, no color outupt:
 
-        _, out, _ = pykit3proc.command(
+        _, out, _ = pk3proc.command(
             'python', '-c', 'import sys; print(sys.stdout.isatty())',
             tty=False,
         )
@@ -296,7 +296,7 @@ capture={}
 
         # by default no tty:
 
-        _, out, _ = pykit3proc.command(
+        _, out, _ = pk3proc.command(
             'python', '-c', 'import sys; print(sys.stdout.isatty())',
         )
 
@@ -304,7 +304,7 @@ capture={}
 
     def test_shell_script(self):
 
-        returncode, out, err = pykit3proc.shell_script(
+        returncode, out, err = pk3proc.shell_script(
             'ls ' + this_base + ' | grep init | grep -v pyc')
 
         dd('returncode:', returncode)
@@ -324,6 +324,6 @@ capture={}
         )
 
         for cmd, target, args, expected in cases:
-            pykit3proc.start_process(cmd, target, os.environ, *args)
+            pk3proc.start_process(cmd, target, os.environ, *args)
             time.sleep(0.1)
             self.assertEqual(expected, self._read_file(self.foo_fn))

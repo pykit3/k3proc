@@ -22,6 +22,24 @@ if defenc is None:
 
 
 class CalledProcessError(subprocess.CalledProcessError):
+    """
+    It is sub class of `subprocess.CalledProcessError`.
+
+    It is raised if a sub process return code is not `0`.
+    Besides `CalledProcessError.args`, extended from super class `Exception`, it
+    has 6 other attributes.
+
+    Attributes:
+        returncode(int): process exit code.
+        stdout(str):     stdout in one string.
+        stderr(str):     stderr in one string.
+        out(list):       stdout in list.
+        err(list):       stderr in list.
+        cmd(list):       the command a process `exec()`.
+        options(dict):   other options passed to this process. Such as
+                         `close_fds`, `cwd` etc.
+    """
+
 
     def __init__(self, returncode, out, err, cmd, options):
 
@@ -98,6 +116,50 @@ def command(cmd, *arguments,
             capture=None,
             tty=None
             ):
+    """
+    Run a `cmd` with arguments `arguments` in a subprocess.
+    It blocks until sub process exit or timeout.
+
+    `**options` are the same as `subprocess.Popen`.
+    Only those differ from `subprocess.Popen` are listed.
+
+    Args:
+        cmd(list, tuple, str): The path of executable to run.
+
+        arguments(list, tuple): arguments passed to `cmd`.
+
+        encoding: by default is the system default encoding.
+
+        env: by default inherit from parent process.
+
+        `check=False`: if `True`, raise `CalledProcessError` if returncode is not 0.
+            By default it is `False`.
+
+        `capture=True`: whether to capture stdin, stdout and stderr.
+            Otherwise inherit these fd from current process.
+
+        `inherit_env=True`: whether to inherit evironment vars from current process.
+
+        `input=None`: input to send to stdin, if it is not None.
+
+        `timeout=None`: seconds to wait for sub process to exit.
+            By default it is None, for waiting for ever.
+
+        `tty=False`: whether to create a pseudo tty to run sub process so that
+            the sub process believes it is in a tty(just like controlled by a
+            human).
+
+    Returns:
+        (int, str, str):
+            -   `returncode`: sub process exit code.
+            -   `out`:        sub process stdout.
+            -   `err`:        sub process stderr.
+
+    Raises:
+        CalledProcessError: If the sub process exit with non-zero and `check=True`.
+        TimeoutExpired: If `timeout` is not `None` and expires before sub process exit.
+
+    """
 
     if encoding is None:
         encoding = defenc
@@ -226,11 +288,27 @@ def command(cmd, *arguments,
 
 
 def command_ex(cmd, *arguments, **options):
+    """
+    This is a shortcut of `command` with `check=True`:
+    if sub process exit code is not 0, it raises exception
+    `CalledProcessError`.
+
+    """
+
     options["check"] = True
     return command(cmd, *arguments, **options)
 
 
 def shell_script(script_str, **options):
+    """
+    This is a shortcut of `command("sh", input=script_str)`.
+
+    Run a shell script::
+
+        shell_script('ls | grep foo.txt')
+
+    """
+
     options['input'] = script_str
     return command('sh', **options)
 
@@ -265,6 +343,24 @@ def _close_fds():
 
 
 def start_process(cmd, target, env, *args):
+    """
+    Create a child process and replace it with `cmd`.  Besides `stdin`, `stdout`
+    and `stderr`, all file descriptors from parent process will be closed in the
+    child process.
+    The parent process waits for the child process until it is completed.
+
+    Args:
+
+        cmd(str): The path of executable to run.
+            Such as `sh`, `bash`, `python`.
+
+        target(str): The path of the script.
+
+        env(dict): pass environment variables to the child process.
+
+        *args: The arguments passed to the script.
+            Type of every element must be `str`.
+    """
 
     try:
         pid = os.fork()
