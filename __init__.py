@@ -30,7 +30,7 @@ from .proc import command_ex
 from .proc import shell_script
 from .proc import start_process
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 __all__ = [
     'CalledProcessError',
