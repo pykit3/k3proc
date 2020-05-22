@@ -1,8 +1,7 @@
 # pk3proc
 
 [![Build Status](https://travis-ci.com/pykit3/pk3proc.svg?branch=master)](https://travis-ci.com/pykit3/pk3proc)
-
-TODO badge for doc.
+[![Documentation Status](https://readthedocs.org/projects/pk3proc/badge/?version=stable)](https://pk3proc.readthedocs.io/en/stable/?badge=stable)
 
 pk3proc is utility to create sub process.
 
