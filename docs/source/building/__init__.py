@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
 import imp
 import sys
 
@@ -32,7 +31,7 @@ __copyright__ = 'Copyright 2020 Zhang Yanpo'
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    'sphinx.ext.napoleon', 
+    'sphinx.ext.napoleon',
     # "sphinx.ext.intersphinx",
     # "sphinx.ext.todo",
     # "sphinx.ext.viewcode",
@@ -62,6 +61,7 @@ html_theme = 'alabaster'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+
 def sphinx_confs(name):
     """
         Load repo dir as a package
@@ -76,15 +76,15 @@ def sphinx_confs(name):
 
     pkg = imp.load_source(name, '../../__init__.py')
     return (
-            name,
-            pkg,
-            pkg.__version__, 
-            __author__, 
-            __copyright__, 
-            extensions      ,
-            templates_path  ,
-            exclude_patterns,
-            master_doc      ,
-            html_theme      ,
-            html_static_path,
+        name,
+        pkg,
+        pkg.__version__,
+        __author__,
+        __copyright__,
+        extensions,
+        templates_path,
+        exclude_patterns,
+        master_doc,
+        html_theme,
+        html_static_path,
     )
