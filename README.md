@@ -5,6 +5,12 @@
 
 pk3proc is utility to create sub process.
 
+# Install
+
+```
+pip install pk3proc
+```
+
 # Synopsis
 
 ```python
