@@ -1,9 +1,9 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('../..'))
 
-import building
+import _building
 
 (project,
  pkg,
@@ -17,4 +17,4 @@ import building
  master_doc,
  html_theme,
  html_static_path,
-) = building.sphinx_confs("pk3proc")
+) = _building.sphinx_confs("pk3proc")

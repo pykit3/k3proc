@@ -30,7 +30,8 @@ from .proc import command_ex
 from .proc import shell_script
 from .proc import start_process
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
+_name = 'pk3proc'
 
 __all__ = [
     'CalledProcessError',
