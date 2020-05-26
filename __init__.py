@@ -1,24 +1,14 @@
 """
-pk3proc is utility to create sub process.
+k3proc is utility to create sub process.
 
 Execute a shell script::
 
-    import pk3proc
-
-    # execute a shell script
-
-    returncode, out, err = pk3proc.shell_script('ls / | grep bin')
-    print returncode
-    print out
-    # output:
-    # > 0
-    # > bin
-    # > sbin
+    >>> returncode, out, err = k3proc.shell_script('ls / | grep bin')
 
 Run a command::
 
     # Unlike the above snippet, following statement does not start an sh process.
-    returncode, out, err = pk3proc.command('ls', 'a*', cwd='/usr/local')
+    returncode, out, err = k3proc.command('ls', 'a*', cwd='/usr/local')
 
 """
 
@@ -31,7 +21,7 @@ from .proc import shell_script
 from .proc import start_process
 
 __version__ = "0.2.3"
-_name = 'pk3proc'
+_name = 'k3proc'
 
 __all__ = [
     'CalledProcessError',

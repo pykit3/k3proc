@@ -5,6 +5,7 @@ import os
 import imp
 import yaml
 import jinja2
+import doctest
 
 # xxx/_building/build_readme.py
 this_base = os.path.dirname(__file__)
@@ -27,6 +28,20 @@ def get_gh_config():
 
 cfg = get_gh_config()
 j2vars['description'] = cfg['repository']['description']
+
+
+def get_examples(pkg):
+    doc = pkg.__doc__
+    parser = doctest.DocTestParser()
+    es = parser.get_examples(doc)
+    rst = []
+    for e in es:
+        rst.append('>>> ' + e.source.strip())
+        rst.append(e.want.strip())
+
+    return '\n'.join(rst)
+
+j2vars['synopsis'] = get_examples(pkg)
 
 def render_j2(tmpl_path, tmpl_vars, output_path):
     template_loader = jinja2.FileSystemLoader(searchpath='./')

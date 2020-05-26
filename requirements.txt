@@ -1,1 +1,7 @@
-pk3ut==0.1.6
+semantic_version==2.6.0
+jinja2==2.10.1
+PyYAML==5.1
+
+
+k3ut==0.1.7
+sphinx==3.0.3

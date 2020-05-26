@@ -17,14 +17,11 @@ script:
     - sudo env "PATH=$PATH" python -c 'import sys; print(sys.version)'           # environment check
     - sudo env "PATH=$PATH" python -c 'import sys; print(sys.version_info)'           # environment check
 
-    # Some tests do not pass on travis-ci.
-    # E.g.: redis, mysql, zookeeper, etcd needs a docker to test.
-    # Disable them temporarily.
-    # -- by xp 2020 Jan 27
-
     # Enable debug log: UT_DEBUG=1
     - >-
         sudo env "PATH=$PATH" UT_DEBUG=0 PYTHONPATH="$(cd ..; pwd)" python -m unittest discover -c --failfast -s .
+
+    - make -C docs html
 
 # after_success:
 #   - pip install python-coveralls && coveralls

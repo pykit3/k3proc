@@ -1,29 +1,25 @@
-# pk3proc
+# k3proc
 
-[![Build Status](https://travis-ci.com/pykit3/pk3proc.svg?branch=master)](https://travis-ci.com/pykit3/pk3proc)
-[![Documentation Status](https://readthedocs.org/projects/pk3proc/badge/?version=stable)](https://pk3proc.readthedocs.io/en/stable/?badge=stable)
+[![Build Status](https://travis-ci.com/pykit3/k3proc.svg?branch=master)](https://travis-ci.com/pykit3/k3proc)
+[![Documentation Status](https://readthedocs.org/projects/k3proc/badge/?version=stable)](https://k3proc.readthedocs.io/en/stable/?badge=stable)
+[![Package](https://img.shields.io/pypi/pyversions/k3proc)](https://pypi.org/project/k3proc)
 
 easy to use `Popen`
+
+k3proc is a component of [pykit3] project: a python3 toolkit set.
+
 
 # Install
 
 ```
-pip install pk3proc
+pip install k3proc
 ```
 
 # Synopsis
 
 ```python
-import pk3proc
+>>> returncode, out, err = k3proc.shell_script('ls / | grep bin')
 
-# execute a shell script
-returncode, out, err = pk3proc.shell_script('ls / | grep bin')
-print returncode
-print out
-# output:
-# > 0
-# > bin
-# > sbin
 ```
 
 #   Author
@@ -35,3 +31,6 @@ Zhang Yanpo (张炎泼) <drdr.xp@gmail.com>
 The MIT License (MIT)
 
 Copyright (c) 2015 Zhang Yanpo (张炎泼) <drdr.xp@gmail.com>
+
+
+[pykit3]: https://github.com/pykit3
