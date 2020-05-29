@@ -4,4 +4,4 @@ PyYAML==5.1
 
 
 k3ut==0.1.7
-sphinx==3.0.3
+sphinx==3.0.4
