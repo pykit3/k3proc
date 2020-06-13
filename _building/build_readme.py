@@ -14,7 +14,7 @@ j2vars = {}
 
 # load package name from __init__.py
 pkg = imp.load_source("_foo", '__init__.py')
-j2vars["name"] = pkg._name
+j2vars["name"] = pkg.__name__
 
 def get_gh_config():
     with open('.github/settings.yml', 'r') as f:
