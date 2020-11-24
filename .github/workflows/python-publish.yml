@@ -28,5 +28,9 @@ jobs:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
       run: |
+        cp setup.py ..
+        cd ..
         python setup.py sdist bdist_wheel
+        pip install dist/*.tar.gz
+        python -c 'import '${GITHUB_REPOSITORY#*/}
         twine upload dist/*

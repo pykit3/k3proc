@@ -105,7 +105,7 @@ tmpl='''# DO NOT EDIT!!! built with `python _building/build_setup.py`
 import setuptools
 setuptools.setup(
     name="${name}",
-    packages=["."],
+    packages=["${name}"],
     version="$ver",
     license='MIT',
     description=$description,
