@@ -63,6 +63,7 @@ def get_examples(pkg):
 
 
 j2vars['synopsis'] = get_examples(pkg)
+j2vars['package_doc'] = pkg.__doc__
 
 
 def render_j2(tmpl_path, tmpl_vars, output_path):

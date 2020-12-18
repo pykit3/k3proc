@@ -63,7 +63,7 @@ html_theme = 'alabaster'
 html_static_path = []
 
 
-def sphinx_confs(name):
+def sphinx_confs():
     """
         Load repo dir as a package
 
@@ -75,9 +75,9 @@ def sphinx_confs(name):
 
     print("sys.path:", sys.path)
 
-    pkg = imp.load_source(name, '../../__init__.py')
+    pkg = imp.load_source("foo", '../../__init__.py')
     return (
-        name,
+        pkg.__name__,
         pkg,
         pkg.__version__,
         __author__,

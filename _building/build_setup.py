@@ -5,12 +5,11 @@
 build steup.py for this package.
 """
 
-import os
+from string import Template
 import subprocess
 import sys
 import imp
 
-import setuptools
 import yaml
 import requirements
 
@@ -21,6 +20,7 @@ if defenc is None:
 
 
 pseudo = "pseudo"
+
 
 def get_name():
     pkg = imp.load_source(pseudo, '__init__.py')
@@ -47,6 +47,7 @@ def get_gh_config():
     tags = [x.strip() for x in tags]
     cfg['repository']['topics'] = tags
     return cfg
+
 
 def get_travis():
     try:
@@ -75,6 +76,7 @@ def get_compatible():
 
     return rst
 
+
 def get_req():
     try:
         with open('requirements.txt', 'r') as f:
@@ -85,9 +87,9 @@ def get_req():
     # req.name, req.specs, req.extras
     # Django [('>=', '1.11'), ('<', '1.12')]
     # six [('==', '1.10.0')]
-    req = [ x.name + ','.join([a+b for a, b in x.specs])
-            for x in req
-    ]
+    req = [x.name + ','.join([a + b for a, b in x.specs])
+           for x in req
+           ]
 
     return req
 
@@ -101,7 +103,7 @@ req = get_req()
 prog = get_compatible()
 
 
-tmpl='''# DO NOT EDIT!!! built with `python _building/build_setup.py`
+tmpl = '''# DO NOT EDIT!!! built with `python _building/build_setup.py`
 import setuptools
 setuptools.setup(
     name="${name}",
@@ -126,16 +128,15 @@ setuptools.setup(
 )
 '''
 
-from string import Template
 s = Template(tmpl)
 rst = s.substitute(
-        name=name,
-        ver=ver,
-        description=repr(description),
-        long_description=repr(long_description),
-        topics = repr(cfg['repository']['topics']),
-        req = repr(req),
-        prog=repr(prog)
+    name=name,
+    ver=ver,
+    description=repr(description),
+    long_description=repr(long_description),
+    topics=repr(cfg['repository']['topics']),
+    req=repr(req),
+    prog=repr(prog)
 )
 with open('setup.py', 'w') as f:
     f.write(rst)
@@ -156,7 +157,7 @@ if sb.returncode != 0:
     raise Exception("failure to commit new release: " + ver, out, err)
 
 
-sb = subprocess.Popen(["git", "tag", "v"+ver],
+sb = subprocess.Popen(["git", "tag", "v" + ver],
                       encoding=defenc,
                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 out, err = sb.communicate()

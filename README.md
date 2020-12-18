@@ -1,12 +1,27 @@
 # k3proc
 
 [![Build Status](https://travis-ci.com/pykit3/k3proc.svg?branch=master)](https://travis-ci.com/pykit3/k3proc)
+![Python package](https://github.com/pykit3/k3proc/workflows/Python%20package/badge.svg)
 [![Documentation Status](https://readthedocs.org/projects/k3proc/badge/?version=stable)](https://k3proc.readthedocs.io/en/stable/?badge=stable)
 [![Package](https://img.shields.io/pypi/pyversions/k3proc)](https://pypi.org/project/k3proc)
 
 easy to use `Popen`
 
 k3proc is a component of [pykit3] project: a python3 toolkit set.
+
+
+k3proc is utility to create sub process.
+
+Execute a shell script::
+
+    >>> returncode, out, err = k3proc.shell_script('ls / | grep bin')
+
+Run a command::
+
+    # Unlike the above snippet, following statement does not start an sh process.
+    returncode, out, err = k3proc.command('ls', 'a*', cwd='/usr/local')
+
+
 
 
 # Install

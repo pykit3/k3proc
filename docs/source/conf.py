@@ -3,7 +3,15 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
 
-import _building
+# In order to find indirect dependency
+sys.path.insert(0, os.path.abspath('../../..'))
+
+# use a try to force not to reorder sys.path and import.
+try:
+    import _building
+except Exception as e:
+    raise e
+
 
 (project,
  pkg,
@@ -17,4 +25,4 @@ import _building
  master_doc,
  html_theme,
  html_static_path,
-) = _building.sphinx_confs("k3proc")
+ ) = _building.sphinx_confs()
