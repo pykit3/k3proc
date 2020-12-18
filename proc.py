@@ -40,7 +40,6 @@ class CalledProcessError(subprocess.CalledProcessError):
                          `close_fds`, `cwd` etc.
     """
 
-
     def __init__(self, returncode, out, err, cmd, options):
 
         if sys.version_info.major == 3 and sys.version_info.minor >= 5:
@@ -120,6 +119,10 @@ def command(cmd, *arguments,
     Run a `cmd` with arguments `arguments` in a subprocess.
     It blocks until sub process exit or timeout.
 
+    By default it runs in ``text`` mode, i.e., stdin, stdout and stderr are
+    encoded into string. Unless ``text=False``, ``encoding=some_encoding``,
+    ``error=some_str`` or ``universal_newlines=True`` is specified.
+
     `**options` are the same as `subprocess.Popen`.
     Only those differ from `subprocess.Popen` are listed.
 
@@ -161,8 +164,28 @@ def command(cmd, *arguments,
 
     """
 
-    if encoding is None:
-        encoding = defenc
+    # https://docs.python.org/3/library/io.html
+    # io.TextIOWrapper:
+    #     errors is an optional string that specifies how encoding and decoding
+    #     errors are to be handled. Pass 'strict' to raise a ValueError
+    #     exception if there is an encoding error (the default of None has the
+    #     same effect), or pass 'ignore' to ignore errors. (Note that ignoring
+    #     encoding errors can lead to data loss.) 'replace' causes a replacement
+    #     marker (such as '?') to be inserted where there is malformed data.
+    #     'backslashreplace' causes malformed data to be replaced by a
+    #     backslashed escape sequence.  When writing, 'xmlcharrefreplace'
+    #     (replace with the appropriate XML character reference) or
+    #     'namereplace' (replace with \N{...} escape sequences) can be used. Any
+    #     other error handling name that has been registered with
+    #     codecs.register_error() is also valid.
+    # text is alias to universal_newlines
+
+    text_mode = (text in (None, True)
+                 and universal_newlines in (None, True))
+
+    if text_mode:
+        if encoding is None:
+            encoding = defenc
 
     if capture is None:
         capture = True
@@ -211,12 +234,7 @@ def command(cmd, *arguments,
     if sys.version_info.minor >= 7:
         textopt["text"] = text
 
-    text_mode = encoding or errors or universal_newlines
-    if text is False:
-        text_mode = False
-
     subproc = subprocess.Popen(cmds,
-
                                bufsize=bufsize,
                                close_fds=close_fds,
                                creationflags=creationflags,
