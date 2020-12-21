@@ -14,7 +14,7 @@ setuptools.setup(
     keywords=['subprocess', 'popen'],
     python_requires='>=3.0',
 
-    install_requires=['semantic_version~=2.8.5', 'jinja2~=2.11.2', 'PyYAML~=5.3.1', 'sphinx~=3.3.1', 'k3ut~=0.1.7'],
+    install_requires=['semantic_version~=2.8.5', 'jinja2~=2.11.2', 'PyYAML~=5.3.1', 'sphinx>=3.3.1,<3.5.0', 'k3ut~=0.1.7'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
