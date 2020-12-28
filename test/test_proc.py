@@ -69,7 +69,7 @@ class TestProc(unittest.TestCase):
 
         try:
             k3proc.command(
-                'python', '-c', 'import sys; sys.exit(1)',
+                'python', '-c', 'import sys, os; os.write(1, b"foo"); os.write(2, b"bar"); sys.exit(1)',
                 check=True,
                 env={"foo": "bar"},
                 cwd="/tmp",
@@ -77,9 +77,34 @@ class TestProc(unittest.TestCase):
         except k3proc.CalledProcessError as e:
             s = '\n'.join([
                 "CalledProcessError",
-                'python -c import sys; sys.exit(1)',
+                'python -c import sys, os; os.write(1, b"foo"); os.write(2, b"bar"); sys.exit(1)',
                 "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': '123'}",
-                "exit code: 1"
+                "exit code: 1",
+                "foo",
+                "bar",
+
+            ])
+            self.assertEqual(s, str(e))
+            self.assertEqual(s, repr(e))
+
+        #  text=False
+        try:
+            k3proc.command(
+                'python', '-c', 'import sys, os; os.write(1, b"\x01"); os.write(2, b"\x02"); sys.exit(1)',
+                check=True,
+                env={"foo": "bar"},
+                cwd="/tmp",
+                text=False,
+                input=b"123")
+        except k3proc.CalledProcessError as e:
+            s = '\n'.join([
+                "CalledProcessError",
+                'python -c import sys, os; os.write(1, b"\x01"); os.write(2, b"\x02"); sys.exit(1)',
+                "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': b'123'}",
+                "exit code: 1",
+                "b'\\x01'",
+                "b'\\x02'",
+
             ])
             self.assertEqual(s, str(e))
             self.assertEqual(s, repr(e))

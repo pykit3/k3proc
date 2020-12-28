@@ -71,9 +71,13 @@ class CalledProcessError(subprocess.CalledProcessError):
              "exit code: " + str(self.returncode)]
 
         for l in self.out:
+            if isinstance(l, bytes):
+                l = repr(l)
             s.append(l)
 
         for l in self.err:
+            if isinstance(l, bytes):
+                l = repr(l)
             s.append(l)
         return "\n".join(s)
 
