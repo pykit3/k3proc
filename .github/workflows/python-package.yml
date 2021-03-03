@@ -10,9 +10,11 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest]
         python-version: [3.6, 3.7, 3.8]
 
     steps:
@@ -26,6 +28,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f test-requirements.txt ]; then pip install -r test-requirements.txt; fi
+    - name: Install npm dependencies
+      run: |
+        if [ -f package.json ]; then npm install; fi
+    - name: Install apt dependencies
+      run: |
+        if [ -f packages.txt ]; then cat packages.txt | xargs sudo apt-get install; fi
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -34,4 +43,16 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        PYTHONPATH="$(cd ..; pwd)" pytest
+        pip install setuptools wheel twine
+        cp setup.py ..
+        cd ..
+        python setup.py sdist bdist_wheel
+        pip install dist/*.tar.gz
+        cd -
+        pytest
+        PATH="$PATH:$(npm bin)" pytest
+
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        path: test/
