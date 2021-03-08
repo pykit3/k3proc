@@ -248,6 +248,17 @@ class TestProc(unittest.TestCase):
                               )
             self.assertLess(t.spent(), 1)
 
+    def test_timeout_tty(self):
+
+        with k3ut.Timer() as t:
+            self.assertRaises(k3proc.TimeoutExpired,
+                              k3proc.command, 'python', '-c',
+                              'import time; time.sleep(1)',
+                              timeout=0.1,
+                              tty=True,
+                              )
+            self.assertLess(t.spent(), 1)
+
     def test_check(self):
 
         self.assertRaises(k3proc.CalledProcessError,

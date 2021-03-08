@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import time
 import errno
 import io
 import logging
@@ -259,9 +260,10 @@ def command(cmd, *arguments,
                                )
 
     if tty:
-        # TODO support timeout
         out = []
         err = []
+
+        now = time.time()
 
         while subproc.poll() is None:
             r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
@@ -271,6 +273,10 @@ def command(cmd, *arguments,
             if err_master_fd in r:
                 o = os.read(err_master_fd, 10240)
                 err.append(o)
+            if timeout is not None and time.time() - now > timeout:
+                subproc.kill()
+                subproc.wait()
+                raise TimeoutExpired(" ".join(cmds), timeout)
 
         out = b''.join(out)
         err = b''.join(err)
