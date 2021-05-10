@@ -41,16 +41,26 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: Test with pytest
+      env:
+        # interactive command such as k3handy.cmdtty to run git, git complains
+        # if no TERM set:
+        #   out: - (press RETURN)
+        #   err: WARNING: terminal is not fully functional
+        # And waiting for a RETURN to press for ever
+        TERM: xterm
       run: |
-        pip install setuptools wheel twine
         cp setup.py ..
         cd ..
-        python setup.py sdist bdist_wheel
-        pip install dist/*.tar.gz
+        python setup.py install
         cd -
-        pytest
-        PATH="$PATH:$(npm bin)" pytest
+        sudo env "PATH=$PATH:$(npm bin)" pytest -v
+
+    - name: Test building doc
+      run: |
+        pip install -r _building/building-requirements.txt
+        make -C docs html
 
     - uses: actions/upload-artifact@v2
       if: failure()
