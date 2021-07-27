@@ -12,3 +12,6 @@ readme:
 
 release:
 	PYTHONPATH="$$(cd ..; pwd)" python _building/build_setup.py
+
+install:
+	./_building/install.sh
