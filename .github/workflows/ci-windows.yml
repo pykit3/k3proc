@@ -1,0 +1,51 @@
+# Customized CI script. not included in pykit3/tmpl
+name: CI on Windows
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        python-version: [3.7, 3.8]
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        pip install -r requirements.txt
+
+    - name: Test with pytest
+      env:
+        # interactive command such as k3handy.cmdtty to run git, git complains
+        # if no TERM set:
+        #   out: - (press RETURN)
+        #   err: WARNING: terminal is not fully functional
+        # And waiting for a RETURN to press for ever
+        TERM: xterm
+      run: |
+        cp setup.py ..
+        cd ..
+        python setup.py install
+        cd -
+        # Only test limited cases
+        pytest -v -k 'test_capture or test_check or test_code_out_err or test_cwd or test_env or test_error_str_with_capture_false or test_input or test_procerror or test_timeout or test_timeout_tty'
+
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        path: test/

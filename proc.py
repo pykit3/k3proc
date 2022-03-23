@@ -1,15 +1,29 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import time
 import errno
 import io
 import logging
 import os
-import pty
 import select
 import subprocess
 import sys
+import time
+try:
+    import pty
+except ModuleNotFoundError:
+    #  Windows does not support pty:
+    #      import pty
+    #  pty.py:12: in <module>
+    #      import tty
+    #  tty.py:5: in <module>
+    #      from termios import *
+    #  ModuleNotFoundError: No module named 'termios'
+    class pty(object):
+        @classmethod
+        def openpty():
+            raise Exception("No pty support on this platform")
+    
 
 logger = logging.getLogger(__name__)
 
@@ -155,7 +169,7 @@ def command(cmd, *arguments,
 
         `tty=False`: whether to create a pseudo tty to run sub process so that
             the sub process believes it is in a tty(just like controlled by a
-            human).
+            human). ``tty`` is NOT supported by Windows.
 
     Returns:
         (int, str, str):
@@ -216,6 +230,8 @@ def command(cmd, *arguments,
         cmds = [cmd] + list(arguments)
 
     if tty:
+        # If to run in a tty,
+        # fake a tty and collect stdout and stderr.
         out_master_fd, out_slave_fd = pty.openpty()
         err_master_fd, err_slave_fd = pty.openpty()
         ioopt = {
@@ -266,7 +282,8 @@ def command(cmd, *arguments,
         now = time.time()
 
         while subproc.poll() is None:
-            r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
+            r, _, _ = select.select(
+                [err_master_fd, out_master_fd], [], [], 0.01)
             if out_master_fd in r:
                 o = os.read(out_master_fd, 10240)
                 out.append(o)

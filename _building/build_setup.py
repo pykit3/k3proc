@@ -5,13 +5,13 @@
 build steup.py for this package.
 """
 
-from string import Template
+import imp
 import subprocess
 import sys
-import imp
+from string import Template
 
-import yaml
 import requirements
+import yaml
 
 if hasattr(sys, 'getfilesystemencoding'):
     defenc = sys.getfilesystemencoding()

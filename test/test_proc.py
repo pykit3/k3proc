@@ -1,10 +1,13 @@
 import os
+import platform
 import sys
 import time
 import unittest
 
-import k3proc
 import k3ut
+import pytest
+
+import k3proc
 
 dd = k3ut.dd
 
@@ -39,7 +42,8 @@ class TestProc(unittest.TestCase):
 
     def test_procerror(self):
         inp = (1, 'out', 'err', ['ls', 'a', 'b'], {"close_fds": True})
-        ex_args = (1, 'out', 'err', ['out'], ['err'], ['ls', 'a', 'b'], {"close_fds": True})
+        ex_args = (1, 'out', 'err', ['out'], ['err'], [
+                   'ls', 'a', 'b'], {"close_fds": True})
         ex = k3proc.CalledProcessError(*inp)
 
         self.assertEqual(ex_args, (ex.returncode,
@@ -248,6 +252,7 @@ class TestProc(unittest.TestCase):
                               )
             self.assertLess(t.spent(), 1)
 
+    @pytest.mark.skipif('Windows' == platform.system(), reason="no pty on windows")
     def test_timeout_tty(self):
 
         with k3ut.Timer() as t:
@@ -323,6 +328,7 @@ capture={}
         self.assertEqual(0, returncode)
         self.assertEqual("", out)
 
+    @pytest.mark.skipif('Windows' == platform.system(), reason="no pty on windows")
     def test_tty(self):
 
         returncode, out, err = k3proc.command(
