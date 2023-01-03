@@ -13,8 +13,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        # Github action runner update ubuntu to 22.04, which does not have
+        # python-3.6 in it: https://github.com/actions/setup-python/issues/544#issuecomment-1320295576
+        # To fix it: use os: [ubuntu-20.04] instead
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -60,7 +63,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -86,7 +89,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
