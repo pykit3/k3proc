@@ -5,7 +5,7 @@
 build steup.py for this package.
 """
 
-import imp
+import ast
 import subprocess
 import sys
 from string import Template
@@ -19,30 +19,49 @@ if defenc is None:
     defenc = sys.getdefaultencoding()
 
 
-pseudo = "pseudo"
+def parse_assignment(filename, var_name):
+    """Parse a Python file and extract the value of a variable assignment using AST."""
+    with open(filename, 'r') as f:
+        content = f.read()
+
+    tree = ast.parse(content)
+
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            # Check if this assignment is to our target variable
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id == var_name:
+                    # Extract the literal value
+                    if isinstance(node.value, ast.Constant):  # Python 3.8+
+                        return node.value.value
+                    elif isinstance(node.value, ast.Str):  # Python < 3.8
+                        return node.value.s
+                    elif isinstance(node.value, ast.Num):  # Python < 3.8
+                        return node.value.n
+
+    return None
 
 
 def get_name():
-    pkg = imp.load_source(pseudo, '__init__.py')
-    name = pkg.__name__
-    return name
+    name = parse_assignment('__init__.py', '__name__')
+    return name if name is not None else "k3git"  # fallback
 
 
 name = get_name()
 
 
 def get_ver():
-    pkg = imp.load_source(pseudo, '__init__.py')
-    pkgver = pkg.__version__
-
-    return pkgver
+    version = parse_assignment('__init__.py', '__version__')
+    if version is None:
+        raise ValueError("Could not find __version__ in __init__.py")
+    return version
 
 
 def get_gh_config():
     with open('.github/settings.yml', 'r') as f:
         cont = f.read()
 
-    cfg = yaml.load(cont)
+    cfg = yaml.safe_load(cont)
     tags = cfg['repository']['topics'].split(',')
     tags = [x.strip() for x in tags]
     cfg['repository']['topics'] = tags
@@ -56,7 +75,7 @@ def get_travis():
     except OSError:
         return None
 
-    cfg = yaml.load(cont)
+    cfg = yaml.safe_load(cont)
     return cfg
 
 
