@@ -219,7 +219,7 @@ class TestProc(unittest.TestCase):
     def test_inherit_env(self):
 
         returncode, out, err = k3proc.command(
-            'python', '-c', 'import os; print(os.environ.get("PATH"))',
+            sys.executable, '-c', 'import os; print(os.environ.get("PATH"))',
             env={"abc": "xyz"},
             inherit_env=False,
         )
