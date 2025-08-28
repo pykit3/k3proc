@@ -23,7 +23,7 @@ static_check:
 readme:
 	python _building/build_readme.py
 
-release:
+build_setup_py:
 	PYTHONPATH="$$(cd ..; pwd)" python _building/build_setup.py
 
 publish:

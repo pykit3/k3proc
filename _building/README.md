@@ -14,7 +14,7 @@ vcs/pykit3/k3handy/
 
 # Publish python package:
 
-- `make release` does the following steps:
+- `make build_setup_py` does the following steps:
     - Builds the `setup.py` and commit it.
     - Add a git tag with the name of `"v" + __init__.__ver__`.
 
