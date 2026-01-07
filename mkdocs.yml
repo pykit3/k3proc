@@ -1,0 +1,30 @@
+site_name: k3proc
+site_description: DESCRIPTION
+site_url: https://k3proc.readthedocs.io
+repo_url: https://github.com/pykit3/k3proc
+repo_name: pykit3/k3proc
+
+theme:
+  name: material
+  palette:
+    primary: blue
+    accent: blue
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [.]
+          options:
+            show_source: true
+            show_root_heading: true
+            heading_level: 2
+
+nav:
+  - Home: index.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences

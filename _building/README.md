@@ -1,23 +1,24 @@
-# building
-building toolkit for pykit3 repos
+# _building
 
-This repo should be included in a package, e.g.:
+Shared build configuration for pykit3 packages.
 
+## Commands
+
+All commands use the `pk3` package:
+
+```bash
+make test      # Run tests with pytest
+make lint      # Format and lint with ruff
+make cov       # Generate coverage report
+make doc       # Build documentation with mkdocs
+make readme    # Generate README.md from docstrings
+make release   # Create git tag from version in pyproject.toml
+make publish   # Build and upload to PyPI
 ```
-vcs/pykit3/k3handy/
-▸ .git/
-▸ .github/
-▸ __pycache__/
-▾ _building/ <-- this repo
-     ...
-```
 
-# Publish python package:
+## Release Process
 
-- `make build_setup_py` does the following steps:
-    - Builds the `setup.py` and commit it.
-    - Add a git tag with the name of `"v" + __init__.__ver__`.
-
-- Then `git push` the tag, github Action in the `.github/workflows/python-pubish.yml` will publish a package to `pypi`.
-
-    The action spec is copied from template repo: `github.com/pykit3/tmpl`.
+1. Update version in `pyproject.toml`
+2. Run `make release` to create git tag
+3. Run `git push --tags` to trigger GitHub Actions
+4. GitHub Actions automatically publishes to PyPI

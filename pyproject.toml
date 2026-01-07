@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "k3proc"
+version = "0.2.14"
+description = "Utility to create subprocess with support for timeout, tty, and text mode"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    { name = "Zhang Yanpo", email = "drdr.xp@gmail.com" }
+]
+keywords = ["subprocess", "process", "command", "shell", "tty"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Libraries",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/pykit3/k3proc"
+Documentation = "https://k3proc.readthedocs.io"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff",
+    "coverage",
+]
+publish = [
+    "build",
+    "twine",
+    "pk3",
+]
+docs = [
+    "mkdocs>=1.5",
+    "mkdocs-material>=9.0",
+    "mkdocstrings[python]>=0.24",
+]
+
+[tool.setuptools]
+packages = ["k3proc"]
+
+[tool.setuptools.package-dir]
+k3proc = "."
+
+[tool.ruff]
+line-length = 120

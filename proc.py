@@ -9,6 +9,7 @@ import select
 import subprocess
 import sys
 import time
+
 try:
     import pty
 except ModuleNotFoundError:
@@ -23,13 +24,13 @@ except ModuleNotFoundError:
         @classmethod
         def openpty():
             raise Exception("No pty support on this platform")
-    
+
 
 logger = logging.getLogger(__name__)
 
 defenc = None
 
-if hasattr(sys, 'getfilesystemencoding'):
+if hasattr(sys, "getfilesystemencoding"):
     defenc = sys.getfilesystemencoding()
 
 if defenc is None:
@@ -56,19 +57,20 @@ class CalledProcessError(subprocess.CalledProcessError):
     """
 
     def __init__(self, returncode, out, err, cmd, options):
-
         if sys.version_info.major == 3 and sys.version_info.minor >= 5:
-            super(CalledProcessError, self).__init__(returncode,
-                                                     cmd,
-                                                     output=out,
-                                                     stderr=err,
-                                                     )
+            super(CalledProcessError, self).__init__(
+                returncode,
+                cmd,
+                output=out,
+                stderr=err,
+            )
         else:
             # python 3.4 has no stderr arg
-            super(CalledProcessError, self).__init__(returncode,
-                                                     cmd,
-                                                     output=out,
-                                                     )
+            super(CalledProcessError, self).__init__(
+                returncode,
+                cmd,
+                output=out,
+            )
 
         self.returncode = returncode
         self.stdout = out
@@ -80,20 +82,22 @@ class CalledProcessError(subprocess.CalledProcessError):
         self.err = err.splitlines()
 
     def __str__(self):
-        s = [self.__class__.__name__,
-             " ".join(self.cmd),
-             "options: " + str(self.options),
-             "exit code: " + str(self.returncode)]
+        s = [
+            self.__class__.__name__,
+            " ".join(self.cmd),
+            "options: " + str(self.options),
+            "exit code: " + str(self.returncode),
+        ]
 
-        for l in self.out:
-            if isinstance(l, bytes):
-                l = repr(l)
-            s.append(l)
+        for line in self.out:
+            if isinstance(line, bytes):
+                line = repr(line)
+            s.append(line)
 
-        for l in self.err:
-            if isinstance(l, bytes):
-                l = repr(l)
-            s.append(l)
+        for line in self.err:
+            if isinstance(line, bytes):
+                line = repr(line)
+            s.append(line)
         return "\n".join(s)
 
     def __repr__(self):
@@ -104,36 +108,36 @@ ProcError = CalledProcessError
 TimeoutExpired = subprocess.TimeoutExpired
 
 
-def command(cmd, *arguments,
-            bufsize=-1,
-            close_fds=True,
-            creationflags=0,
-            cwd=None,
-            encoding=None,
-            env=None,
-            errors=None,
-            executable=None,
-            pass_fds=(),
-            preexec_fn=None,
-            restore_signals=True,
-            shell=False,
-            start_new_session=False,
-            startupinfo=None,
-            stderr=None,
-            stdin=None,
-            stdout=None,
-            text=None,
-            universal_newlines=None,
-
-            # extended args
-
-            input=None,
-            check=False,
-            inherit_env=None,
-            timeout=None,
-            capture=None,
-            tty=None
-            ):
+def command(
+    cmd,
+    *arguments,
+    bufsize=-1,
+    close_fds=True,
+    creationflags=0,
+    cwd=None,
+    encoding=None,
+    env=None,
+    errors=None,
+    executable=None,
+    pass_fds=(),
+    preexec_fn=None,
+    restore_signals=True,
+    shell=False,
+    start_new_session=False,
+    startupinfo=None,
+    stderr=None,
+    stdin=None,
+    stdout=None,
+    text=None,
+    universal_newlines=None,
+    # extended args
+    input=None,
+    check=False,
+    inherit_env=None,
+    timeout=None,
+    capture=None,
+    tty=None,
+):
     """
     Run a `cmd` with arguments `arguments` in a subprocess.
     It blocks until sub process exit or timeout.
@@ -199,8 +203,7 @@ def command(cmd, *arguments,
     #     codecs.register_error() is also valid.
     # text is alias to universal_newlines
 
-    text_mode = (text in (None, True)
-                 and universal_newlines in (None, True))
+    text_mode = text in (None, True) and universal_newlines in (None, True)
 
     if text_mode:
         if encoding is None:
@@ -236,15 +239,15 @@ def command(cmd, *arguments,
         err_master_fd, err_slave_fd = pty.openpty()
         ioopt = {
             # TODO 'stdin':
-            'stdout': out_slave_fd,
-            'stderr': err_slave_fd,
+            "stdout": out_slave_fd,
+            "stderr": err_slave_fd,
         }
     else:
         if capture:
             ioopt = {
-                'stdin': subprocess.PIPE,
-                'stdout': subprocess.PIPE,
-                'stderr': subprocess.PIPE,
+                "stdin": subprocess.PIPE,
+                "stdout": subprocess.PIPE,
+                "stderr": subprocess.PIPE,
             }
 
         else:
@@ -255,25 +258,26 @@ def command(cmd, *arguments,
     if sys.version_info.minor >= 7:
         textopt["text"] = text
 
-    subproc = subprocess.Popen(cmds,
-                               bufsize=bufsize,
-                               close_fds=close_fds,
-                               creationflags=creationflags,
-                               cwd=cwd,
-                               encoding=encoding,
-                               env=merged_env,
-                               errors=errors,
-                               executable=executable,
-                               pass_fds=pass_fds,
-                               preexec_fn=preexec_fn,
-                               restore_signals=restore_signals,
-                               shell=shell,
-                               start_new_session=start_new_session,
-                               startupinfo=startupinfo,
-                               **textopt,
-                               universal_newlines=universal_newlines,
-                               **ioopt
-                               )
+    subproc = subprocess.Popen(
+        cmds,
+        bufsize=bufsize,
+        close_fds=close_fds,
+        creationflags=creationflags,
+        cwd=cwd,
+        encoding=encoding,
+        env=merged_env,
+        errors=errors,
+        executable=executable,
+        pass_fds=pass_fds,
+        preexec_fn=preexec_fn,
+        restore_signals=restore_signals,
+        shell=shell,
+        start_new_session=start_new_session,
+        startupinfo=startupinfo,
+        **textopt,
+        universal_newlines=universal_newlines,
+        **ioopt,
+    )
 
     if tty:
         out = []
@@ -282,8 +286,7 @@ def command(cmd, *arguments,
         now = time.time()
 
         while subproc.poll() is None:
-            r, _, _ = select.select(
-                [err_master_fd, out_master_fd], [], [], 0.01)
+            r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
             if out_master_fd in r:
                 o = os.read(out_master_fd, 10240)
                 out.append(o)
@@ -295,14 +298,12 @@ def command(cmd, *arguments,
                 subproc.wait()
                 raise TimeoutExpired(" ".join(cmds), timeout)
 
-        out = b''.join(out)
-        err = b''.join(err)
+        out = b"".join(out)
+        err = b"".join(err)
 
         if text_mode:
-            out = io.TextIOWrapper(io.BytesIO(out),
-                                   encoding=encoding, errors=errors).read()
-            err = io.TextIOWrapper(io.BytesIO(err),
-                                   encoding=encoding, errors=errors).read()
+            out = io.TextIOWrapper(io.BytesIO(out), encoding=encoding, errors=errors).read()
+            err = io.TextIOWrapper(io.BytesIO(err), encoding=encoding, errors=errors).read()
 
     else:
         try:
@@ -315,9 +316,9 @@ def command(cmd, *arguments,
         subproc.wait()
 
         if out is None:
-            out = ''
+            out = ""
         if err is None:
-            err = ''
+            err = ""
 
     if check and subproc.returncode != 0:
         opts = {}
@@ -354,8 +355,8 @@ def shell_script(script_str, **options):
 
     """
 
-    options['input'] = script_str
-    return command('sh', **options)
+    options["input"] = script_str
+    return command("sh", **options)
 
 
 def _waitpid(pid):
@@ -410,7 +411,7 @@ def start_process(cmd, target, env, *args):
     try:
         pid = os.fork()
     except OSError as e:
-        logger.error(repr(e) + ' while fork')
+        logger.error(repr(e) + " while fork")
         raise
 
     if pid == 0:

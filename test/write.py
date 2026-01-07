@@ -3,17 +3,17 @@
 
 import sys
 
-fn = '/tmp/foo'
+fn = "/tmp/foo"
 
 
 def write_file(fn, cont):
     try:
-        with open(fn, 'w') as f:
+        with open(fn, "w") as f:
             f.write(cont)
     except Exception:
         raise
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = sys.argv[1:]
-    write_file(fn, ''.join(args))
+    write_file(fn, "".join(args))
