@@ -240,11 +240,6 @@ def command(
         else:
             ioopt = {}
 
-    textopt = {}
-    # since 3.7 there is a text arg
-    if sys.version_info.minor >= 7:
-        textopt["text"] = text
-
     subproc = subprocess.Popen(
         cmds,
         bufsize=bufsize,
@@ -261,7 +256,7 @@ def command(
         shell=shell,
         start_new_session=start_new_session,
         startupinfo=startupinfo,
-        **textopt,
+        text=text,
         universal_newlines=universal_newlines,
         **ioopt,
     )
