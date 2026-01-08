@@ -222,10 +222,10 @@ def command(
     if inherit_env is None:
         inherit_env = True
 
-    merged_env = env
     if inherit_env:
-        if env is not None:
-            merged_env = dict(os.environ, **env)
+        merged_env = dict(os.environ, **(env or {}))
+    else:
+        merged_env = env
 
     if isinstance(cmd, (list, tuple)):
         cmds = cmd
