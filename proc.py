@@ -15,9 +15,9 @@ try:
     import pty
 except ModuleNotFoundError:
     # Windows does not support pty (no termios module)
-    class pty:
+    class pty:  # type: ignore[no-redef]
         @staticmethod
-        def openpty():
+        def openpty() -> tuple[int, int]:
             raise NotImplementedError("PTY not supported on this platform")
 
 
@@ -215,15 +215,17 @@ def command(
     if inherit_env is None:
         inherit_env = True
 
+    merged_env: Mapping[str, str] | None
     if inherit_env:
         merged_env = dict(os.environ, **(env or {}))
     else:
         merged_env = env
 
-    if isinstance(cmd, (list, tuple)):
-        cmds = cmd
-    else:
+    cmds: list[str]
+    if isinstance(cmd, str):
         cmds = [cmd] + list(arguments)
+    else:
+        cmds = list(cmd)
 
     if tty:
         # If to run in a tty,
@@ -246,7 +248,7 @@ def command(
         else:
             ioopt = {}
 
-    subproc = subprocess.Popen(
+    subproc = subprocess.Popen(  # type: ignore[call-overload, misc]
         cmds,
         bufsize=bufsize,
         close_fds=close_fds,
@@ -267,9 +269,12 @@ def command(
         **ioopt,
     )
 
+    out: str | bytes
+    err: str | bytes
+
     if tty:
-        out = []
-        err = []
+        out_chunks: list[bytes] = []
+        err_chunks: list[bytes] = []
 
         now = time.time()
 
@@ -277,21 +282,24 @@ def command(
             r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
             if out_master_fd in r:
                 o = os.read(out_master_fd, 10240)
-                out.append(o)
+                out_chunks.append(o)
             if err_master_fd in r:
                 o = os.read(err_master_fd, 10240)
-                err.append(o)
+                err_chunks.append(o)
             if timeout is not None and time.time() - now > timeout:
                 subproc.kill()
                 subproc.wait()
                 raise TimeoutExpired(" ".join(cmds), timeout)
 
-        out = b"".join(out)
-        err = b"".join(err)
+        out_bytes = b"".join(out_chunks)
+        err_bytes = b"".join(err_chunks)
 
         if text_mode:
-            out = io.TextIOWrapper(io.BytesIO(out), encoding=encoding, errors=errors).read()
-            err = io.TextIOWrapper(io.BytesIO(err), encoding=encoding, errors=errors).read()
+            out = io.TextIOWrapper(io.BytesIO(out_bytes), encoding=encoding, errors=errors).read()
+            err = io.TextIOWrapper(io.BytesIO(err_bytes), encoding=encoding, errors=errors).read()
+        else:
+            out = out_bytes
+            err = err_bytes
 
     else:
         try:
@@ -307,7 +315,7 @@ def command(
             err = ""
 
     if check and subproc.returncode != 0:
-        opts = {}
+        opts: dict[str, Any] = {}
         if cwd is not None:
             opts["cwd"] = cwd
         if env is not None:
