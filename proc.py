@@ -57,20 +57,7 @@ class CalledProcessError(subprocess.CalledProcessError):
     """
 
     def __init__(self, returncode, out, err, cmd, options):
-        if sys.version_info.major == 3 and sys.version_info.minor >= 5:
-            super(CalledProcessError, self).__init__(
-                returncode,
-                cmd,
-                output=out,
-                stderr=err,
-            )
-        else:
-            # python 3.4 has no stderr arg
-            super(CalledProcessError, self).__init__(
-                returncode,
-                cmd,
-                output=out,
-            )
+        super().__init__(returncode, cmd, output=out, stderr=err)
 
         self.returncode = returncode
         self.stdout = out
