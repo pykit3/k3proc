@@ -222,6 +222,22 @@ class TestProc(unittest.TestCase):
         self.assertEqual(0, returncode)
         self.assertEqual("None\n", out, "no PATH inherited")
 
+    def test_inherit_env_default(self):
+        # When inherit_env=True (default) and env=None (default),
+        # the subprocess should inherit the current environment.
+        returncode, out, err = k3proc.command(
+            sys.executable,
+            "-c",
+            'import os; print(os.environ.get("PATH", "NOT_FOUND"))',
+        )
+        dd("returncode:", returncode)
+        dd("out:", out)
+        dd("err:", err)
+
+        self.assertEqual(0, returncode)
+        self.assertNotEqual("NOT_FOUND\n", out, "PATH should be inherited by default")
+        self.assertEqual(os.environ.get("PATH") + "\n", out)
+
     def test_input(self):
         returncode, out, err = k3proc.command("python", "read_fd.py", "0", input="abc", cwd=this_base)
         dd("returncode:", returncode)
