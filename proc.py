@@ -350,6 +350,20 @@ def _waitpid(pid):
 
 
 def _close_fds():
+    # Try to get list of open FDs efficiently via /proc or /dev
+    for fd_dir in ("/proc/self/fd", "/dev/fd"):
+        try:
+            fds = [int(fd) for fd in os.listdir(fd_dir)]
+            for fd in fds:
+                try:
+                    os.close(fd)
+                except OSError:
+                    pass
+            return
+        except (OSError, ValueError):
+            continue
+
+    # Fallback: iterate through all possible FDs
     try:
         max_fd = os.sysconf("SC_OPEN_MAX")
     except ValueError:
