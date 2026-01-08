@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: utf-8
 
 import errno
 import io
@@ -22,13 +21,7 @@ except ModuleNotFoundError:
 
 logger = logging.getLogger(__name__)
 
-defenc = None
-
-if hasattr(sys, "getfilesystemencoding"):
-    defenc = sys.getfilesystemencoding()
-
-if defenc is None:
-    defenc = sys.getdefaultencoding()
+defenc = sys.getfilesystemencoding() or sys.getdefaultencoding()
 
 
 class CalledProcessError(subprocess.CalledProcessError):
