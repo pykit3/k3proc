@@ -396,9 +396,8 @@ def start_process(cmd, target, env, *args):
         try:
             os.execlpe(cmd, cmd, target, *args)
         except Exception:
-            # we can do nothing when error in execlpe
-            # don't logger here, logger need get GIL lock
-            # children process may dead lock
-            pass
+            # Can't use logger here - GIL deadlock risk in forked child.
+            # Exit with non-zero code to signal failure to parent.
+            os._exit(1)
     else:
         _waitpid(pid)
