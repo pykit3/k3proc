@@ -13,17 +13,11 @@ import time
 try:
     import pty
 except ModuleNotFoundError:
-    #  Windows does not support pty:
-    #      import pty
-    #  pty.py:12: in <module>
-    #      import tty
-    #  tty.py:5: in <module>
-    #      from termios import *
-    #  ModuleNotFoundError: No module named 'termios'
-    class pty(object):
-        @classmethod
+    # Windows does not support pty (no termios module)
+    class pty:
+        @staticmethod
         def openpty():
-            raise Exception("No pty support on this platform")
+            raise NotImplementedError("PTY not supported on this platform")
 
 
 logger = logging.getLogger(__name__)
