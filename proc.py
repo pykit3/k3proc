@@ -295,8 +295,6 @@ def command(
             subproc.wait()
             raise
 
-        subproc.wait()
-
         if out is None:
             out = ""
         if err is None:
