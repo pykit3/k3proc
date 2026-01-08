@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
 import errno
 import io
@@ -8,6 +9,7 @@ import select
 import subprocess
 import sys
 import time
+from typing import Any, Callable, Mapping, Sequence
 
 try:
     import pty
@@ -43,7 +45,22 @@ class CalledProcessError(subprocess.CalledProcessError):
                          `close_fds`, `cwd` etc.
     """
 
-    def __init__(self, returncode, out, err, cmd, options):
+    returncode: int
+    stdout: str | bytes
+    stderr: str | bytes
+    cmd: list[str]
+    options: dict[str, Any]
+    out: list[str] | list[bytes]
+    err: list[str] | list[bytes]
+
+    def __init__(
+        self,
+        returncode: int,
+        out: str | bytes,
+        err: str | bytes,
+        cmd: list[str],
+        options: dict[str, Any],
+    ) -> None:
         super().__init__(returncode, cmd, output=out, stderr=err)
 
         self.returncode = returncode
@@ -55,8 +72,8 @@ class CalledProcessError(subprocess.CalledProcessError):
         self.out = out.splitlines()
         self.err = err.splitlines()
 
-    def __str__(self):
-        s = [
+    def __str__(self) -> str:
+        s: list[str] = [
             self.__class__.__name__,
             " ".join(self.cmd),
             "options: " + str(self.options),
@@ -65,16 +82,18 @@ class CalledProcessError(subprocess.CalledProcessError):
 
         for line in self.out:
             if isinstance(line, bytes):
-                line = repr(line)
-            s.append(line)
+                s.append(repr(line))
+            else:
+                s.append(line)
 
         for line in self.err:
             if isinstance(line, bytes):
-                line = repr(line)
-            s.append(line)
+                s.append(repr(line))
+            else:
+                s.append(line)
         return "\n".join(s)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
 
@@ -83,35 +102,35 @@ TimeoutExpired = subprocess.TimeoutExpired
 
 
 def command(
-    cmd,
-    *arguments,
-    bufsize=-1,
-    close_fds=True,
-    creationflags=0,
-    cwd=None,
-    encoding=None,
-    env=None,
-    errors=None,
-    executable=None,
-    pass_fds=(),
-    preexec_fn=None,
-    restore_signals=True,
-    shell=False,
-    start_new_session=False,
-    startupinfo=None,
-    stderr=None,
-    stdin=None,
-    stdout=None,
-    text=None,
-    universal_newlines=None,
+    cmd: str | Sequence[str],
+    *arguments: str,
+    bufsize: int = -1,
+    close_fds: bool = True,
+    creationflags: int = 0,
+    cwd: str | bytes | os.PathLike[str] | os.PathLike[bytes] | None = None,
+    encoding: str | None = None,
+    env: Mapping[str, str] | None = None,
+    errors: str | None = None,
+    executable: str | bytes | os.PathLike[str] | os.PathLike[bytes] | None = None,
+    pass_fds: Sequence[int] = (),
+    preexec_fn: Callable[[], Any] | None = None,
+    restore_signals: bool = True,
+    shell: bool = False,
+    start_new_session: bool = False,
+    startupinfo: Any = None,
+    stderr: int | None = None,
+    stdin: int | None = None,
+    stdout: int | None = None,
+    text: bool | None = None,
+    universal_newlines: bool | None = None,
     # extended args
-    input=None,
-    check=False,
-    inherit_env=None,
-    timeout=None,
-    capture=None,
-    tty=None,
-):
+    input: str | bytes | None = None,
+    check: bool = False,
+    inherit_env: bool | None = None,
+    timeout: float | None = None,
+    capture: bool | None = None,
+    tty: bool | None = None,
+) -> tuple[int, str | bytes, str | bytes]:
     """
     Run a `cmd` with arguments `arguments` in a subprocess.
     It blocks until sub process exit or timeout.
@@ -300,7 +319,11 @@ def command(
     return (subproc.returncode, out, err)
 
 
-def command_ex(cmd, *arguments, **options):
+def command_ex(
+    cmd: str | Sequence[str],
+    *arguments: str,
+    **options: Any,
+) -> tuple[int, str | bytes, str | bytes]:
     """
     This is a shortcut of `command` with `check=True`:
     if sub process exit code is not 0, it raises exception
@@ -312,7 +335,10 @@ def command_ex(cmd, *arguments, **options):
     return command(cmd, *arguments, **options)
 
 
-def shell_script(script_str, **options):
+def shell_script(
+    script_str: str,
+    **options: Any,
+) -> tuple[int, str | bytes, str | bytes]:
     """
     This is a shortcut of `command("sh", input=script_str)`.
 
@@ -326,7 +352,7 @@ def shell_script(script_str, **options):
     return command("sh", **options)
 
 
-def _waitpid(pid):
+def _waitpid(pid: int) -> None:
     while True:
         try:
             os.waitpid(pid, 0)
@@ -342,7 +368,7 @@ def _waitpid(pid):
                 raise
 
 
-def _close_fds():
+def _close_fds() -> None:
     # Try to get list of open FDs efficiently via /proc or /dev
     for fd_dir in ("/proc/self/fd", "/dev/fd"):
         try:
@@ -369,7 +395,12 @@ def _close_fds():
             pass
 
 
-def start_process(cmd, target, env, *args):
+def start_process(
+    cmd: str,
+    target: str,
+    env: Mapping[str, str],
+    *args: str,
+) -> None:
     """
     Create a child process and replace it with `cmd`.  Besides `stdin`, `stdout`
     and `stderr`, all file descriptors from parent process will be closed in the
@@ -397,11 +428,11 @@ def start_process(cmd, target, env, *args):
 
     if pid == 0:
         _close_fds()
-        args = list(args)
-        env = dict(os.environ, **env)
-        args.append(env)
+        args_list: list[Any] = list(args)
+        merged_env = dict(os.environ, **env)
+        args_list.append(merged_env)
         try:
-            os.execlpe(cmd, cmd, target, *args)
+            os.execlpe(cmd, cmd, target, *args_list)
         except Exception:
             # Can't use logger here - GIL deadlock risk in forked child.
             # Exit with non-zero code to signal failure to parent.
