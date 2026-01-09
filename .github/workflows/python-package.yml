@@ -5,67 +5,6 @@ on:
   pull_request:
 
 jobs:
-  ut:
+  ci:
+    uses: pykit3/pk3/.github/workflows/python-package-reusable.yml@master
 
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: [3.9, "3.10", 3.11, 3.12]
-
-    steps:
-    - uses: actions/checkout@v5
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
-    - name: Test with pytest
-      run: |
-        pytest -v
-
-  build_doc:
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.12"]
-
-    steps:
-    - uses: actions/checkout@v5
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Test building doc
-      run: |
-        pip install -e .
-        pip install mkdocs mkdocs-material "mkdocstrings[python]"
-        mkdocs build
-
-  lint:
-
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        python-version: ["3.12"]
-
-    steps:
-    - uses: actions/checkout@v5
-
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Lint with ruff
-      run: |
-        pip install ruff
-        ruff check .
-        ruff format --check .
