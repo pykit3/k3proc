@@ -6,27 +6,8 @@ on:
       - v*
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  publish:
+    uses: pykit3/pk3/.github/workflows/python-publish-reusable.yml@master
+    secrets:
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
 
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build twine
-
-      - name: Build package
-        run: python -m build
-
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: twine upload dist/*
