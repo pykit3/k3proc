@@ -9,7 +9,8 @@ import select
 import subprocess
 import sys
 import time
-from typing import Any, Callable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
+from typing import Any, Callable
 
 try:
     import pty
@@ -198,9 +199,8 @@ def command(
 
     text_mode = text in (None, True) and universal_newlines in (None, True)
 
-    if text_mode:
-        if encoding is None:
-            encoding = defenc
+    if text_mode and encoding is None:
+        encoding = defenc
 
     if capture is None:
         capture = True
@@ -259,7 +259,8 @@ def command(
         errors=errors,
         executable=executable,
         pass_fds=pass_fds,
-        preexec_fn=preexec_fn,
+        # command() passes the caller's preexec_fn through to Popen; it is public API.
+        preexec_fn=preexec_fn,  # noqa: PLW1509
         restore_signals=restore_signals,
         shell=shell,
         start_new_session=start_new_session,
@@ -441,7 +442,8 @@ def start_process(
         args_list.append(merged_env)
         try:
             os.execlpe(cmd, cmd, target, *args_list)
-        except Exception:
+        # Any error must end the forked child, so it never runs the caller's code.
+        except Exception:  # noqa: BLE001
             # Can't use logger here - GIL deadlock risk in forked child.
             # Exit with non-zero code to signal failure to parent.
             os._exit(1)

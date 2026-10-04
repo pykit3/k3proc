@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# coding: utf-8
 
 import sys
 
@@ -7,11 +6,8 @@ fn = "/tmp/foo"
 
 
 def write_file(fn, cont):
-    try:
-        with open(fn, "w") as f:
-            f.write(cont)
-    except Exception:
-        raise
+    with open(fn, "w") as f:
+        f.write(cont)
 
 
 if __name__ == "__main__":

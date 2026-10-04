@@ -1,6 +1,6 @@
 # k3proc
 
-[![Build Status](https://github.com/pykit3/k3proc/actions/workflows/python-package.yml/badge.svg)](https://github.com/pykit3/k3proc/actions/workflows/python-package.yml)
+[![Action-CI](https://github.com/pykit3/k3proc/actions/workflows/python-package.yml/badge.svg)](https://github.com/pykit3/k3proc/actions/workflows/python-package.yml)
 [![Documentation Status](https://readthedocs.org/projects/k3proc/badge/?version=stable)](https://k3proc.readthedocs.io/en/stable/?badge=stable)
 [![Package](https://img.shields.io/pypi/pyversions/k3proc)](https://pypi.org/project/k3proc)
 
@@ -33,7 +33,6 @@ pip install k3proc
 
 ```python
 >>> returncode, out, err = k3proc.shell_script('ls / | grep bin')
-
 ```
 
 #   Author

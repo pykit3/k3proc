@@ -22,14 +22,14 @@ class TestProc(unittest.TestCase):
             with open(fn, "r") as f:
                 cont = f.read()
                 return cont
-        except EnvironmentError:
+        except OSError:
             return None
 
     def _clean(self):
         # remove written file
         try:
             os.unlink(self.foo_fn)
-        except EnvironmentError:
+        except OSError:
             pass
 
     def setUp(self):
@@ -74,15 +74,13 @@ class TestProc(unittest.TestCase):
                 input="123",
             )
         except k3proc.CalledProcessError as e:
-            s = "\n".join(
-                [
-                    "CalledProcessError",
-                    'python -c import sys, os; os.write(1, b"foo"); os.write(2, b"bar"); sys.exit(1)',
-                    "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': '123'}",
-                    "exit code: 1",
-                    "foo",
-                    "bar",
-                ]
+            s = (
+                "CalledProcessError\n"
+                'python -c import sys, os; os.write(1, b"foo"); os.write(2, b"bar"); sys.exit(1)\n'
+                "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': '123'}\n"
+                "exit code: 1\n"
+                "foo\n"
+                "bar"
             )
             self.assertEqual(s, str(e))
             self.assertEqual(s, repr(e))
@@ -100,15 +98,13 @@ class TestProc(unittest.TestCase):
                 input=b"123",
             )
         except k3proc.CalledProcessError as e:
-            s = "\n".join(
-                [
-                    "CalledProcessError",
-                    'python -c import sys, os; os.write(1, b"\x01"); os.write(2, b"\x02"); sys.exit(1)',
-                    "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': b'123'}",
-                    "exit code: 1",
-                    "b'\\x01'",
-                    "b'\\x02'",
-                ]
+            s = (
+                "CalledProcessError\n"
+                'python -c import sys, os; os.write(1, b"\x01"); os.write(2, b"\x02"); sys.exit(1)\n'
+                "options: {'cwd': '/tmp', 'env': {'foo': 'bar'}, 'input': b'123'}\n"
+                "exit code: 1\n"
+                "b'\\x01'\n"
+                "b'\\x02'"
             )
             self.assertEqual(s, str(e))
             self.assertEqual(s, repr(e))
@@ -187,10 +183,10 @@ class TestProc(unittest.TestCase):
             self.assertEqual("", err)
 
     def test_cwd(self):
-        returncode, out, err = k3proc.command("python", "subproc.py", "111", cwd=this_base)
+        returncode, _out, _err = k3proc.command("python", "subproc.py", "111", cwd=this_base)
         self.assertEqual(111, returncode)
 
-        returncode, out, err = k3proc.command("python", "subproc.py", "111")
+        returncode, _out, _err = k3proc.command("python", "subproc.py", "111")
         if "PyPy" in sys.version:
             # PyPy does not return code correctly. it is 1
             self.assertNotEqual(0, returncode)

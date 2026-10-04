@@ -16,18 +16,12 @@ from importlib.metadata import version
 
 __version__ = version("k3proc")
 
-from .proc import CalledProcessError
-from .proc import ProcError
-from .proc import TimeoutExpired
-from .proc import command
-from .proc import command_ex
-from .proc import shell_script
-from .proc import start_process
+from .proc import CalledProcessError, ProcError, TimeoutExpired, command, command_ex, shell_script, start_process
 
 __all__ = [
     "CalledProcessError",
-    "TimeoutExpired",
     "ProcError",
+    "TimeoutExpired",
     "command",
     "command_ex",
     "shell_script",

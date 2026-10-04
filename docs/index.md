@@ -21,20 +21,20 @@ Execute a shell script:
 ```python
 import k3proc
 
-returncode, out, err = k3proc.shell_script('ls / | grep bin')
+returncode, out, err = k3proc.shell_script("ls / | grep bin")
 ```
 
 Run a command (without starting a shell process):
 
 ```python
-returncode, out, err = k3proc.command('ls', 'a*', cwd='/usr/local')
+returncode, out, err = k3proc.command("ls", "a*", cwd="/usr/local")
 ```
 
 Run with check=True to raise exception on non-zero exit:
 
 ```python
 try:
-    returncode, out, err = k3proc.command_ex('false')
+    returncode, out, err = k3proc.command_ex("false")
 except k3proc.CalledProcessError as e:
     print(f"Command failed with code {e.returncode}")
 ```
