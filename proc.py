@@ -152,22 +152,25 @@ def command(
 
         env: by default inherit from parent process.
 
-        `check=False`: if `True`, raise `CalledProcessError` if returncode is not 0.
+        check: if `True`, raise `CalledProcessError` if returncode is not 0.
             By default it is `False`.
 
-        `capture=True`: whether to capture stdin, stdout and stderr.
+        capture: whether to capture stdin, stdout and stderr.
             Otherwise inherit these fd from current process.
+            By default it is `True`.
 
-        `inherit_env=True`: whether to inherit evironment vars from current process.
+        inherit_env: whether to inherit environment vars from current process.
+            By default it is `True`.
 
-        `input=None`: input to send to stdin, if it is not None.
+        input: input to send to stdin, if it is not None.
 
-        `timeout=None`: seconds to wait for sub process to exit.
+        timeout: seconds to wait for sub process to exit.
             By default it is None, for waiting for ever.
 
-        `tty=False`: whether to create a pseudo tty to run sub process so that
+        tty: whether to create a pseudo tty to run sub process so that
             the sub process believes it is in a tty(just like controlled by a
             human). ``tty`` is NOT supported by Windows.
+            By default it is `False`.
 
     Returns:
         (int, str, str):
