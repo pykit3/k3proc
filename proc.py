@@ -420,7 +420,6 @@ def start_process(
     The parent process waits for the child process until it is completed.
 
     Args:
-
         cmd(str): The path of executable to run.
             Such as `sh`, `bash`, `python`.
 
