@@ -9,8 +9,8 @@ import select
 import subprocess
 import sys
 import time
-from collections.abc import Mapping, Sequence
-from typing import Any, Callable
+from collections.abc import Callable, Mapping, Sequence
+from typing import Any
 
 try:
     import pty
