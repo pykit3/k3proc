@@ -396,3 +396,16 @@ capture={}
     def test_start_process_keeps_std_fds(self):
         k3proc.start_process("python", this_base + "/write_std_fds.py", os.environ)
         self.assertEqual("0 1 2", self._read_file(self.foo_fn))
+
+    def test_start_process_returncode(self):
+        cases = (
+            ("python", this_base + "/write.py", 0),
+            # python exits with 2 when it can not open the script.
+            ("python", this_base + "/no-such-script.py", 2),
+            # The child exits with 1 when it can not run `cmd`.
+            ("k3proc-ut-no-such-cmd", this_base + "/write.py", 1),
+        )
+
+        for cmd, target, expected in cases:
+            returncode = k3proc.start_process(cmd, target, os.environ)
+            self.assertEqual(expected, returncode, cmd + " " + target)

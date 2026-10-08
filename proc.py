@@ -364,11 +364,11 @@ def shell_script(
     return command("sh", **options)
 
 
-def _waitpid(pid: int) -> None:
+def _waitpid(pid: int) -> int:
     while True:
         try:
-            os.waitpid(pid, 0)
-            break
+            _, status = os.waitpid(pid, 0)
+            return os.waitstatus_to_exitcode(status)
         except OSError as e:
             # In case we encountered an OSError due to EINTR (which is
             # caused by a SIGINT or SIGTERM signal during
@@ -415,7 +415,7 @@ def start_process(
     target: str,
     env: Mapping[str, str],
     *args: str,
-) -> None:
+) -> int:
     """
     Create a child process and replace it with `cmd`.  Besides `stdin`, `stdout`
     and `stderr`, all file descriptors from parent process will be closed in the
@@ -432,6 +432,10 @@ def start_process(
 
         *args: The arguments passed to the script.
             Type of every element must be `str`.
+
+    Returns:
+        int: the exit code of the child process. It is `-N` if signal `N` ended
+            the child, and `1` if `cmd` can not be executed.
     """
 
     try:
@@ -453,4 +457,4 @@ def start_process(
             # Exit with non-zero code to signal failure to parent.
             os._exit(1)
     else:
-        _waitpid(pid)
+        return _waitpid(pid)
