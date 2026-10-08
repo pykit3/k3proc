@@ -386,6 +386,9 @@ def _close_fds() -> None:
         try:
             fds = [int(fd) for fd in os.listdir(fd_dir)]
             for fd in fds:
+                # Keep stdin, stdout and stderr, as start_process() documents.
+                if fd < 3:
+                    continue
                 try:
                     os.close(fd)
                 except OSError:
@@ -400,7 +403,7 @@ def _close_fds() -> None:
     except ValueError:
         max_fd = 65536
 
-    for i in range(max_fd):
+    for i in range(3, max_fd):
         try:
             os.close(i)
         except OSError:

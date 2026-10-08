@@ -392,3 +392,7 @@ capture={}
             k3proc.start_process(cmd, target, os.environ, *args)
             time.sleep(0.1)
             self.assertEqual(expected, self._read_file(self.foo_fn))
+
+    def test_start_process_keeps_std_fds(self):
+        k3proc.start_process("python", this_base + "/write_std_fds.py", os.environ)
+        self.assertEqual("0 1 2", self._read_file(self.foo_fn))
