@@ -157,6 +157,7 @@ def command(
 
         capture: whether to capture stdin, stdout and stderr.
             Otherwise inherit these fd from current process.
+            An explicit `stdin`, `stdout` or `stderr` takes precedence.
             By default it is `True`.
 
         inherit_env: whether to inherit environment vars from current process.
@@ -250,6 +251,12 @@ def command(
 
         else:
             ioopt = {}
+
+    # An explicit stream option takes precedence over the default of `capture` or `tty`.
+    explicit_streams = {"stdin": stdin, "stdout": stdout, "stderr": stderr}
+    for name, stream in explicit_streams.items():
+        if stream is not None:
+            ioopt[name] = stream
 
     subproc = subprocess.Popen(  # type: ignore[call-overload, misc]
         cmds,

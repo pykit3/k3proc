@@ -1,6 +1,8 @@
 import os
 import platform
+import subprocess
 import sys
+import tempfile
 import time
 import unittest
 
@@ -263,6 +265,26 @@ class TestProc(unittest.TestCase):
                 tty=True,
             )
             self.assertLess(t.spent(), 1)
+
+    def test_explicit_streams(self):
+        # Explicit stream options take precedence over the pipes of `capture`.
+        script = 'import os; os.write(1, b"out"); os.write(2, b"err")'
+
+        with tempfile.TemporaryFile() as f:
+            returncode, out, err = k3proc.command("python", "-c", script, stdout=f.fileno())
+            f.seek(0)
+            self.assertEqual(b"out", f.read())
+
+        self.assertEqual((0, "", "err"), (returncode, out, err))
+
+        rst = k3proc.command("python", "-c", script, stdout=subprocess.DEVNULL)
+        self.assertEqual((0, "", "err"), rst)
+
+        rst = k3proc.command("python", "-c", script, stderr=subprocess.STDOUT)
+        self.assertEqual((0, "outerr", ""), rst)
+
+        rst = k3proc.command("python", "-c", "import sys; print(sys.stdin.read())", stdin=subprocess.DEVNULL)
+        self.assertEqual((0, "\n", ""), rst)
 
     def test_check(self):
         self.assertRaises(
