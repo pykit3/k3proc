@@ -1,3 +1,4 @@
+import gc
 import os
 import platform
 import subprocess
@@ -391,6 +392,36 @@ capture={}
         )
 
         self.assertEqual("False\n", out)
+
+    @pytest.mark.skipif("Windows" == platform.system(), reason="no pty on windows")
+    def test_tty_closes_fds(self):
+        fd_dir = "/proc/self/fd" if os.path.isdir("/proc/self/fd") else "/dev/fd"
+
+        # Objects left by earlier tests may close their descriptors when collected.
+        gc.collect()
+        before = sorted(os.listdir(fd_dir))
+
+        for _ in range(3):
+            rst = k3proc.command("python", "-c", "print(1)", tty=True)
+            self.assertEqual((0, "1\n", ""), rst)
+
+        with self.assertRaises(FileNotFoundError):
+            k3proc.command("k3proc-ut-no-such-cmd", tty=True)
+
+        with self.assertRaises(k3proc.TimeoutExpired):
+            k3proc.command("python", "-c", "import time; time.sleep(1)", timeout=0.1, tty=True)
+
+        after = sorted(os.listdir(fd_dir))
+        self.assertEqual(before, after)
+
+    @pytest.mark.skipif("Windows" == platform.system(), reason="no pty on windows")
+    def test_tty_output_after_exit(self):
+        # The child often exits before its output is read; the pty still holds that output.
+        # 20000 bytes also take more than one 10240-byte read.
+        for size in (5000, 20000):
+            for _ in range(20):
+                rst = k3proc.command("head", "-c", str(size), "/dev/zero", tty=True, text=False)
+                self.assertEqual((0, b"\0" * size, b""), rst)
 
     def test_shell_script(self):
         returncode, out, err = k3proc.shell_script("ls " + this_base + " | grep init | grep -v pyc")

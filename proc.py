@@ -231,11 +231,13 @@ def command(
     else:
         cmds = list(cmd)
 
+    pty_fds: list[int] = []
     if tty:
         # If to run in a tty,
         # fake a tty and collect stdout and stderr.
         out_master_fd, out_slave_fd = pty.openpty()
         err_master_fd, err_slave_fd = pty.openpty()
+        pty_fds = [out_master_fd, out_slave_fd, err_master_fd, err_slave_fd]
         ioopt = {
             # TODO 'stdin':
             "stdout": out_slave_fd,
@@ -258,52 +260,46 @@ def command(
         if stream is not None:
             ioopt[name] = stream
 
-    subproc = subprocess.Popen(  # type: ignore[call-overload, misc]
-        cmds,
-        bufsize=bufsize,
-        close_fds=close_fds,
-        creationflags=creationflags,
-        cwd=cwd,
-        encoding=encoding,
-        env=merged_env,
-        errors=errors,
-        executable=executable,
-        pass_fds=pass_fds,
-        # command() passes the caller's preexec_fn through to Popen; it is public API.
-        preexec_fn=preexec_fn,  # noqa: PLW1509
-        restore_signals=restore_signals,
-        shell=shell,
-        start_new_session=start_new_session,
-        startupinfo=startupinfo,
-        text=text,
-        universal_newlines=universal_newlines,
-        **ioopt,
-    )
+    try:
+        subproc = subprocess.Popen(  # type: ignore[call-overload, misc]
+            cmds,
+            bufsize=bufsize,
+            close_fds=close_fds,
+            creationflags=creationflags,
+            cwd=cwd,
+            encoding=encoding,
+            env=merged_env,
+            errors=errors,
+            executable=executable,
+            pass_fds=pass_fds,
+            # command() passes the caller's preexec_fn through to Popen; it is public API.
+            preexec_fn=preexec_fn,  # noqa: PLW1509
+            restore_signals=restore_signals,
+            shell=shell,
+            start_new_session=start_new_session,
+            startupinfo=startupinfo,
+            text=text,
+            universal_newlines=universal_newlines,
+            **ioopt,
+        )
+    except BaseException:
+        for fd in pty_fds:
+            os.close(fd)
+        raise
 
     out: str | bytes
     err: str | bytes
 
     if tty:
-        out_chunks: list[bytes] = []
-        err_chunks: list[bytes] = []
+        # The child holds its own copies of the slave descriptors.
+        os.close(out_slave_fd)
+        os.close(err_slave_fd)
 
-        now = time.time()
-
-        while subproc.poll() is None:
-            r, _, _ = select.select([err_master_fd, out_master_fd], [], [], 0.01)
-            if out_master_fd in r:
-                o = os.read(out_master_fd, 10240)
-                out_chunks.append(o)
-            if err_master_fd in r:
-                o = os.read(err_master_fd, 10240)
-                err_chunks.append(o)
-            if timeout is not None and time.time() - now > timeout:
-                subproc.kill()
-                subproc.wait()
-                raise TimeoutExpired(" ".join(cmds), timeout)
-
-        out_bytes = b"".join(out_chunks)
-        err_bytes = b"".join(err_chunks)
+        try:
+            out_bytes, err_bytes = _read_ptys(subproc, out_master_fd, err_master_fd, cmds, timeout)
+        finally:
+            os.close(out_master_fd)
+            os.close(err_master_fd)
 
         if text_mode:
             out = io.TextIOWrapper(io.BytesIO(out_bytes), encoding=encoding, errors=errors).read()
@@ -336,6 +332,50 @@ def command(
 
         raise CalledProcessError(subproc.returncode, out, err, cmds, opts)
     return (subproc.returncode, out, err)
+
+
+def _read_ptys(
+    subproc: subprocess.Popen[Any],
+    out_fd: int,
+    err_fd: int,
+    cmds: list[str],
+    timeout: float | None,
+) -> tuple[bytes, bytes]:
+    chunks: dict[int, list[bytes]] = {out_fd: [], err_fd: []}
+    open_fds = [out_fd, err_fd]
+    start = time.monotonic()
+
+    while True:
+        exited = subproc.poll() is not None
+        readable, _, _ = select.select(open_fds, [], [], 0.01)
+
+        for fd in readable:
+            data = _read_pty(fd)
+            if data:
+                chunks[fd].append(data)
+            else:
+                open_fds.remove(fd)
+
+        # A pty may still buffer what the child wrote before it exited; it is all read once nothing is readable.
+        if exited and not readable:
+            break
+
+        if timeout is not None and time.monotonic() - start > timeout:
+            subproc.kill()
+            subproc.wait()
+            raise TimeoutExpired(" ".join(cmds), timeout)
+
+    return b"".join(chunks[out_fd]), b"".join(chunks[err_fd])
+
+
+def _read_pty(fd: int) -> bytes:
+    try:
+        return os.read(fd, 10240)
+    except OSError as e:
+        # Linux reports EIO instead of EOF once every slave descriptor is closed.
+        if e.errno == errno.EIO:
+            return b""
+        raise
 
 
 def command_ex(
