@@ -3,6 +3,7 @@ k3proc is utility to create sub process.
 
 Execute a shell script::
 
+    >>> import k3proc
     >>> returncode, out, err = k3proc.shell_script('ls / | grep bin')
 
 Run a command::
